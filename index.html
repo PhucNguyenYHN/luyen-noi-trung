@@ -359,6 +359,30 @@
   .grades button small { display: block; font-size: 11.5px; font-weight: 500; opacity: .9; margin-top: 3px; }
   .g0 { background: #c62828; } .g1 { background: #ef6c00; } .g2 { background: #2e7d32; } .g3 { background: #1565c0; }
   .vtools { display: flex; justify-content: space-between; margin-top: 12px; }
+  /* Kho từ HSK */
+  .tabs.sub { margin: 0 0 12px; }
+  .tabs.sub button { font-size: 14px; padding: 8px 6px; }
+  body.in-cards .tabs.sub { display: none; }
+  .lvls { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; }
+  .lvls button { flex: none; padding: 8px 12px; font: 600 14px/1.2 inherit; border-radius: 999px; border: 1px solid var(--line); background: var(--card); color: var(--ink); cursor: pointer; }
+  .lvls button small { font-weight: 400; color: var(--muted); margin-left: 4px; }
+  .lvls button.on { background: var(--brand); color: var(--brand-ink); border-color: var(--brand); }
+  .lvls button.on small { color: inherit; opacity: .85; }
+  .bankbar { display: flex; gap: 8px; margin: 10px 0 6px; }
+  .bankbar input { flex: 1; }
+  .bankbar select { width: auto; }
+  .banknote { font-size: 12.5px; color: var(--muted); margin: 2px 0 8px; }
+  .brow { display: flex; align-items: center; gap: 10px; padding: 10px 4px; border-top: 1px solid var(--line); cursor: pointer; }
+  .brow .bh { min-width: 74px; }
+  .brow .bh b { display: block; font-size: 24px; font-weight: 600; line-height: 1.2; }
+  .brow .bh span { font-size: 13px; color: var(--brand); }
+  .brow .bm { flex: 1; min-width: 0; font-size: 15px; }
+  .brow .bm .hv { display: block; font-size: 12.5px; color: var(--muted); }
+  .brow .bm .wait { color: var(--muted); font-style: italic; }
+  .brow .add { flex: none; width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--brand); background: transparent; color: var(--brand); font-size: 22px; cursor: pointer; }
+  .brow .add.in { border-color: var(--ok); color: var(--ok); font-size: 16px; }
+  .bdetail { padding: 4px 4px 12px 84px; font-size: 14px; color: var(--muted); }
+  .bdetail .say { margin: 6px 8px 0 0; }
   /* Tài liệu bài học */
   #lessonSheet { z-index: 25; }
   #lsBody h3 { font-size: 13px; letter-spacing: .05em; text-transform: uppercase; color: var(--brand); margin: 18px 0 6px; }
@@ -451,12 +475,30 @@
   </div>
 
   <div id="vocabView">
+    <div class="tabs sub" id="vTabs">
+      <button type="button" data-v="cards" class="on">🃏 Ôn thẻ</button>
+      <button type="button" data-v="bank">📚 Kho từ HSK</button>
+    </div>
+    <div id="vBank" class="hidden">
+      <div class="lvls" id="bankLvls"></div>
+      <div class="bankbar">
+        <input type="text" id="bankQ" placeholder="Tìm: 你好, nihao, xin chào…" autocomplete="off">
+        <select id="bankF"><option value="all">Tất cả</option><option value="new">Chưa học</option><option value="in">Đã có trong thẻ</option></select>
+      </div>
+      <div class="banknote" id="bankNote"></div>
+      <div id="bankList"></div>
+      <div style="text-align:center;margin:12px 0"><button id="bankMore" class="ghost hidden" type="button">Xem thêm</button></div>
+      <div class="tip">Danh sách từ HSK 1–6 (bản 2.0, 4.991 từ): complete-hsk-vocabulary, giấy phép MIT. Nghĩa tiếng Việt và âm Hán Việt do Gemini dịch dần theo trang bạn xem, lưu lại để lần sau mở ngay.</div>
+    </div>
     <div id="vHome" class="vhome">
       <img class="vmascot" src="m3d/books.png" alt="">
       <h2 style="margin:0">Thẻ từ vựng</h2>
       <div class="tip">Học từ như thẻ ghi nhớ: lật thẻ, nghe phát âm, tự chấm. Từ quên sẽ quay lại sớm, từ đã nhớ giãn ngày ôn dần.</div>
       <div class="vstats" id="vStats"></div>
       <button id="vStart" class="bigbtn" disabled>Đang tải…</button>
+      <div class="vrow"><label for="newSource">Từ mới lấy từ</label>
+        <select id="newSource"><option value="lesson" selected>Bài học (116 bài)</option><option value="hsk1">Kho HSK 1</option><option value="hsk2">Kho HSK 2</option>
+          <option value="hsk3">Kho HSK 3</option><option value="hsk4">Kho HSK 4</option><option value="hsk5">Kho HSK 5</option><option value="hsk6">Kho HSK 6</option></select></div>
       <div class="vrow"><label for="newPerDay">Từ mới mỗi ngày</label>
         <select id="newPerDay"><option>5</option><option selected>10</option><option>15</option><option>20</option><option>30</option></select></div>
       <div id="vMsg" class="alert" style="margin-top:10px"></div>
@@ -1859,7 +1901,11 @@
       b.setAttribute('aria-selected', b.dataset.tab === t ? 'true' : 'false');
     });
     try { LS.setItem('tab', t); } catch (e) {}
-    if (t === 'vocab' && !V.active) loadCards();
+    if (t === 'vocab' && !V.active) {
+      var vt = 'cards';
+      try { vt = LS.getItem('vtab') || 'cards'; } catch (e) {}
+      setVTab(vt === 'bank' ? 'bank' : 'cards');
+    }
   }
   Array.prototype.forEach.call(document.querySelectorAll('#tabs button'), function (b) {
     b.addEventListener('click', function () { setTab(b.dataset.tab); });
@@ -1899,6 +1945,8 @@
   var V = { active: false, queue: [], done: 0, total: 0, pending: [], card: null, back: false, data: null, auto: true };
   try { V.auto = LS.getItem('autoSay') !== '0'; } catch (e) {}
   try { var npd = LS.getItem('newPerDay'); if (npd) $('newPerDay').value = npd; } catch (e) {}
+  try { var nsrc = LS.getItem('newSource'); if (nsrc && $('newSource').querySelector('option[value="' + nsrc + '"]')) $('newSource').value = nsrc; } catch (e) {}
+  $('newSource').addEventListener('change', function () { try { LS.setItem('newSource', this.value); } catch (e) {} loadCards(); });
   $('newPerDay').addEventListener('change', function () { try { LS.setItem('newPerDay', this.value); } catch (e) {} loadCards(); });
   function setAutoLabel() { $('vAuto').textContent = '🔊 Tự đọc: ' + (V.auto ? 'bật' : 'tắt'); }
   setAutoLabel();
@@ -1909,7 +1957,20 @@
     $('vStart').disabled = true;
     $('vStart').textContent = 'Đang tải…';
     $('vMsg').textContent = '';
-    server('getCards', { auth: auth, newLimit: $('newPerDay').value }).then(function (d) {
+    var src = $('newSource').value;
+    server('getCards', { auth: auth, newLimit: $('newPerDay').value, source: src }).then(function (d) {
+      V.known = {};
+      (d.known || []).forEach(function (h) { V.known[h] = true; });
+      if (!/^hsk/.test(src) || !d.wantNew) return d;
+      // Từ mới lấy từ kho HSK: những từ phổ biến nhất của cấp đó mà chưa có trong thẻ.
+      return loadBank(src).then(function (list) {
+        var pick = list.filter(function (w) { return !V.known[w[0]]; }).slice(0, d.wantNew);
+        return ensureVi(pick).then(function () {
+          d.fresh = pick.map(function (w) { return bankCard(w, src); });
+          return d;
+        });
+      });
+    }).then(function (d) {
       V.data = d;
       var st = d.stats;
       var box = $('vStats');
@@ -1934,7 +1995,7 @@
 
   $('vStart').addEventListener('click', function () {
     if (!V.data || this.textContent === 'Thử lại') return;
-    var due = shuffle(V.data.due.map(function (c) { return { c: c, mode: 'quiz' }; }));
+    var due = shuffle(V.data.due.map(function (c) { return { c: c, mode: c.reps === 0 && c.lapses === 0 && !c.interval ? 'intro' : 'quiz' }; }));
     var fresh = V.data.fresh.map(function (c) { return { c: c, mode: 'intro' }; });
     // Xen từ mới vào giữa các thẻ ôn: cứ hai thẻ ôn thì một từ mới.
     var q = [];
@@ -2010,6 +2071,7 @@
     var line = addTxt(box, '', 'hv');
     line.textContent = (c.pinyin ? c.pinyin : '') + (c.hanviet ? '   ·   Hán Việt: ' + c.hanviet : '');
     addTxt(box, c.meaning, 'mean');
+    if (c.en && c.en !== c.meaning) addTxt(box, c.en, 'hv');
     box.appendChild(sayBtn(c.hanzi));
     if (c.example) {
       var ex = addZh(box, c.example, 'ex');
@@ -2103,9 +2165,156 @@
       $('vDoneText').textContent = 'Đã chấm ' + V.done + ' thẻ và lưu kết quả. Từ quên sẽ quay lại sớm; từ nhớ sẽ được hẹn ôn sau vài ngày.';
     });
   }
+  // ---- kho từ HSK 1–6
+  var BANK = {}, BANKVI = {}, B = { level: 'hsk1', shown: 40 };
+  try { BANKVI = JSON.parse(LS.getItem('bankvi') || '{}') || {}; } catch (e) { BANKVI = {}; }
+  var BANK_COUNT = { hsk1: 150, hsk2: 147, hsk3: 298, hsk4: 598, hsk5: 1298, hsk6: 2500 };
+  function loadBank(lv) {
+    if (BANK[lv]) return Promise.resolve(BANK[lv]);
+    return fetch('hsk/' + lv + '.json').then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+      .then(function (d) { BANK[lv] = d; return d; });
+  }
+  function saveBankVi() { try { LS.setItem('bankvi', JSON.stringify(BANKVI)); } catch (e) {} }
+  // Lấy nghĩa tiếng Việt cho các từ chưa có (máy chủ dịch, mỗi lần tối đa 60 từ).
+  function ensureVi(words) {
+    var miss = words.filter(function (w) { return !BANKVI[w[0]]; });
+    if (!miss.length) return Promise.resolve();
+    var chunks = [];
+    for (var i = 0; i < miss.length; i += 60) chunks.push(miss.slice(i, i + 60));
+    return chunks.reduce(function (p, ch) {
+      return p.then(function () {
+        return server('bankVi', { auth: auth, words: ch }).then(function (m) {
+          Object.keys(m || {}).forEach(function (h) { BANKVI[h] = m[h]; });
+          saveBankVi();
+        });
+      });
+    }, Promise.resolve()).catch(function (e) { console.warn('Không dịch được kho từ:', e); });
+  }
+  function bankCard(w, lv) {
+    var v = BANKVI[w[0]] || {};
+    return { id: w[0], hanzi: w[0], pinyin: w[1], hanviet: v.hv || '', meaning: v.vi || w[2], en: w[2], example: '', example_vi: '',
+      source: 'Kho ' + lv.toUpperCase().replace('HSK', 'HSK '), interval: 0, ease: 2.5, reps: 0, lapses: 0, due: 0, isNew: true };
+  }
+  function fold(t) { return String(t || '').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'd').toLowerCase().replace(/\s+/g, ''); }
+
+  function setVTab(t) {
+    $('vBank').classList.toggle('hidden', t !== 'bank');
+    $('vHome').classList.toggle('hidden', t === 'bank');
+    $('vDone').classList.add('hidden');
+    Array.prototype.forEach.call(document.querySelectorAll('#vTabs button'), function (b) { b.classList.toggle('on', b.dataset.v === t); });
+    try { LS.setItem('vtab', t); } catch (e) {}
+    if (t === 'bank') openBank(B.level);
+    else loadCards();
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('#vTabs button'), function (b) {
+    b.addEventListener('click', function () { setVTab(b.dataset.v); });
+  });
+  (function buildLvls() {
+    var box = $('bankLvls');
+    Object.keys(BANK_COUNT).forEach(function (lv) {
+      var b = document.createElement('button');
+      b.type = 'button'; b.dataset.lv = lv;
+      b.appendChild(document.createTextNode(lv.toUpperCase().replace('HSK', 'HSK ')));
+      var sm = document.createElement('small'); sm.textContent = BANK_COUNT[lv]; b.appendChild(sm);
+      b.addEventListener('click', function () { openBank(lv); });
+      box.appendChild(b);
+    });
+  })();
+  function openBank(lv) {
+    B.level = lv; B.shown = 40; B.open = null;
+    Array.prototype.forEach.call(document.querySelectorAll('#bankLvls button'), function (b) { b.classList.toggle('on', b.dataset.lv === lv); });
+    $('bankList').innerHTML = '';
+    $('bankNote').textContent = 'Đang tải…';
+    if (!V.known) server('getCards', { auth: auth, newLimit: 0 }).then(function (d) {
+      V.known = {}; (d.known || []).forEach(function (h) { V.known[h] = true; }); renderBank();
+    }).catch(function () {});
+    loadBank(lv).then(renderBank).catch(function (e) { $('bankNote').textContent = 'Không tải được danh sách từ: ' + (e && e.message || e); });
+  }
+  function bankFiltered() {
+    var list = BANK[B.level] || [], q = fold($('bankQ').value), f = $('bankF').value, known = V.known || {};
+    var raw = $('bankQ').value.trim();
+    // Khớp chính xác lên đầu, rồi khớp từ đầu, rồi khớp ở giữa.
+    function score(w) {
+      if (!q) return 1;
+      var v = BANKVI[w[0]] || {}, py = fold(w[1]);
+      if (w[0] === raw || py === q) return 4;
+      if (w[0].indexOf(raw) === 0 || py.indexOf(q) === 0 || fold(v.vi).indexOf(q) === 0 || fold(v.hv) === q) return 3;
+      if (w[0].indexOf(raw) >= 0 || py.indexOf(q) >= 0 || fold(v.hv).indexOf(q) >= 0) return 2;
+      if (fold(v.vi).indexOf(q) >= 0 || fold(w[2]).indexOf(q) >= 0) return 1.5;
+      return 0;
+    }
+    return list.map(function (w, i) { return { w: w, s: score(w), i: i }; }).filter(function (x) {
+      if (!x.s) return false;
+      if (f === 'new' && known[x.w[0]]) return false;
+      if (f === 'in' && !known[x.w[0]]) return false;
+      return true;
+    }).sort(function (a, b) { return b.s - a.s || a.i - b.i; }).map(function (x) { return x.w; });
+  }
+  function renderBank() {
+    var all = bankFiltered(), page = all.slice(0, B.shown), box = $('bankList'), known = V.known || {};
+    var inDeck = (BANK[B.level] || []).filter(function (w) { return known[w[0]]; }).length;
+    $('bankNote').textContent = B.level.toUpperCase().replace('HSK', 'HSK ') + ': ' + (BANK[B.level] || []).length + ' từ, ' + inDeck +
+      ' từ đã có trong thẻ. Xếp theo độ phổ biến. ' + (all.length !== (BANK[B.level] || []).length ? 'Đang lọc: ' + all.length + ' từ.' : '');
+    box.innerHTML = '';
+    page.forEach(function (w) { box.appendChild(bankRow(w)); });
+    $('bankMore').classList.toggle('hidden', all.length <= B.shown);
+    var need = page.filter(function (w) { return !BANKVI[w[0]]; });
+    if (need.length) ensureVi(need).then(function () { if (bankFiltered().length) refreshBankRows(); });
+  }
+  function refreshBankRows() {
+    Array.prototype.forEach.call($('bankList').children, function (row) {
+      var w = row._w;
+      if (w && BANKVI[w[0]] && row.querySelector('.wait')) row.parentNode.replaceChild(bankRow(w), row);
+    });
+  }
+  function bankRow(w) {
+    var row = document.createElement('div');
+    row._w = w;
+    var wrap = document.createElement('div');
+    wrap.className = 'brow';
+    var v = BANKVI[w[0]], known = V.known && V.known[w[0]];
+    var h = document.createElement('div'); h.className = 'bh';
+    var b = document.createElement('b'); b.textContent = w[0]; h.appendChild(b);
+    var py = document.createElement('span'); py.textContent = w[1]; h.appendChild(py);
+    var m = document.createElement('div'); m.className = 'bm';
+    if (v) { m.appendChild(document.createTextNode(v.vi)); if (v.hv) { var hv = document.createElement('span'); hv.className = 'hv'; hv.textContent = 'Hán Việt: ' + v.hv; m.appendChild(hv); } }
+    else { var wt = document.createElement('span'); wt.className = 'wait'; wt.textContent = w[2] + ' (đang dịch…)'; m.appendChild(wt); }
+    var add = document.createElement('button');
+    add.type = 'button'; add.className = 'add' + (known ? ' in' : '');
+    add.textContent = known ? '✓' : '＋';
+    add.title = known ? 'Đã có trong thẻ học' : 'Thêm vào thẻ học';
+    add.addEventListener('click', function (ev) {
+      ev.stopPropagation();
+      if (V.known && V.known[w[0]]) return;
+      add.disabled = true;
+      var c = bankCard(w, B.level);
+      c.due = Date.now();
+      server('saveReviews', { auth: auth, reviews: [c] }).then(function () {
+        V.known = V.known || {}; V.known[w[0]] = true;
+        add.className = 'add in'; add.textContent = '✓'; add.title = 'Đã có trong thẻ học';
+      }).catch(function (e) { add.disabled = false; alert('Không thêm được: ' + (e && e.message || e)); });
+    });
+    wrap.appendChild(h); wrap.appendChild(m); wrap.appendChild(add);
+    wrap.addEventListener('click', function () {
+      var open = row.querySelector('.bdetail');
+      if (open) { row.removeChild(open); return; }
+      var d = document.createElement('div'); d.className = 'bdetail';
+      d.appendChild(sayBtn(w[0]));
+      d.appendChild(document.createTextNode('Tiếng Anh: ' + w[2]));
+      row.appendChild(d);
+      say(w[0]);
+    });
+    row.appendChild(wrap);
+    return row;
+  }
+  var bankTimer = null;
+  $('bankQ').addEventListener('input', function () { clearTimeout(bankTimer); bankTimer = setTimeout(function () { B.shown = 40; renderBank(); }, 200); });
+  $('bankF').addEventListener('change', function () { B.shown = 40; renderBank(); });
+  $('bankMore').addEventListener('click', function () { B.shown += 40; renderBank(); });
+
   $('vQuit').addEventListener('click', function () { V.queue = V.queue.length ? [V.card].concat(V.queue) : []; finishCards(); });
   $('vBack').addEventListener('click', function () {
-    $('vDone').classList.add('hidden'); $('vHome').classList.remove('hidden'); loadCards();
+    setVTab('cards');
   });
 
   el.mainBtn.addEventListener('click', function () {
