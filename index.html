@@ -314,6 +314,51 @@
   .sheet .stats { margin: 10px 0 4px; }
   .sheet-notes { font-size: 12.5px; color: var(--muted); padding: 10px 0 0; }
   .sheet-notes div { margin-bottom: 6px; }
+  /* Hai phần song song: Luyện nói / Thẻ từ vựng */
+  .tabs { display: flex; gap: 6px; padding: 4px; margin: 2px 0 8px; background: var(--card); border: 1px solid var(--line); border-radius: 999px; }
+  .tabs button { flex: 1; padding: 9px 6px; font: 600 15px/1.2 inherit; color: var(--muted); background: transparent; border: 0; border-radius: 999px; cursor: pointer; }
+  .tabs button.on { background: var(--brand); color: var(--brand-ink); }
+  .wrap.locked .tabs, body.in-session .tabs, body.in-cards .tabs { display: none; }
+  body.tab-vocab .stage, body.tab-vocab #summaryCard { display: none !important; }
+  #vocabView { display: none; }
+  body.tab-vocab #vocabView { display: block; }
+  .vhome { text-align: center; padding: 6px 0 10px; }
+  .vhome .vmascot { width: 120px; height: 120px; margin: 4px auto 6px; display: block; }
+  .vstats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin: 10px 0 14px; }
+  .vstats div { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 10px 6px; }
+  .vstats b { display: block; font-size: 24px; color: var(--brand); }
+  .vstats span { font-size: 12.5px; color: var(--muted); }
+  .bigbtn { width: 100%; max-width: 360px; padding: 16px; font: 700 18px/1.2 inherit; color: var(--brand-ink); background: var(--brand); border: 0; border-radius: 16px; cursor: pointer; box-shadow: 0 6px 18px rgba(0,0,0,.15); }
+  .bigbtn:disabled { opacity: .5; }
+  .vrow { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 14px; font-size: 14px; color: var(--muted); }
+  .vrow select { width: auto; padding: 6px 10px; }
+  .vbarwrap { display: flex; align-items: center; gap: 10px; margin: 2px 0 10px; }
+  .vbar { flex: 1; height: 8px; background: var(--line); border-radius: 4px; overflow: hidden; }
+  .vbar i { display: block; height: 100%; width: 0; background: var(--ok); transition: width .3s; }
+  .vcount { font-size: 13px; color: var(--muted); min-width: 64px; text-align: right; }
+  .fcard { position: relative; min-height: 330px; padding: 18px 16px; background: var(--card); border: 1px solid var(--line); border-radius: 20px;
+    box-shadow: 0 8px 24px rgba(0,0,0,.08); text-align: center; display: flex; flex-direction: column; justify-content: center; cursor: pointer;
+    -webkit-tap-highlight-color: transparent; }
+  .fcard.flip { animation: flipIn .28s ease-out; }
+  @keyframes flipIn { 0% { transform: perspective(800px) rotateY(80deg); opacity: .3; } 100% { transform: none; opacity: 1; } }
+  .fcard .tag { position: absolute; top: 12px; left: 14px; font-size: 12px; font-weight: 600; color: var(--brand); background: var(--user); padding: 3px 10px; border-radius: 999px; }
+  .fcard .src { position: absolute; top: 14px; right: 14px; font-size: 11.5px; color: var(--muted); }
+  .fcard .ask { font-size: 14px; color: var(--muted); margin-bottom: 10px; }
+  .fcard .big { font-size: 64px; font-weight: 600; line-height: 1.25; }
+  .fcard .big ruby rt { font-size: .32em; }
+  .fcard .mean { font-size: 22px; font-weight: 600; margin: 6px 0 2px; }
+  .fcard .hv { font-size: 14px; color: var(--muted); }
+  .fcard .ex { font-size: 18px; margin-top: 14px; line-height: 2.1; }
+  .fcard .ex .vi { font-size: 14px; }
+  .say { display: inline-flex; align-items: center; justify-content: center; width: 52px; height: 52px; margin: 8px auto 0; font-size: 24px; border-radius: 50%;
+    border: 1px solid var(--line); background: var(--bg); cursor: pointer; }
+  .say.sm { width: 34px; height: 34px; font-size: 16px; margin: 0 0 0 6px; vertical-align: middle; }
+  .vact { margin-top: 12px; }
+  .grades { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .grades button { padding: 10px 4px; font: 600 15px/1.2 inherit; border-radius: 14px; border: 0; cursor: pointer; color: #fff; }
+  .grades button small { display: block; font-size: 11.5px; font-weight: 500; opacity: .9; margin-top: 3px; }
+  .g0 { background: #c62828; } .g1 { background: #ef6c00; } .g2 { background: #2e7d32; } .g3 { background: #1565c0; }
+  .vtools { display: flex; justify-content: space-between; margin-top: 12px; }
   /* Tài liệu bài học */
   #lessonSheet { z-index: 25; }
   #lsBody h3 { font-size: 13px; letter-spacing: .05em; text-transform: uppercase; color: var(--brand); margin: 18px 0 6px; }
@@ -373,6 +418,11 @@
     </div>
   </div>
 
+  <div class="tabs" id="tabs" role="tablist">
+    <button type="button" data-tab="speak" class="on" role="tab">🗣️ Luyện nói</button>
+    <button type="button" data-tab="vocab" role="tab">🃏 Thẻ từ vựng</button>
+  </div>
+
   <div class="card hidden" id="lockCard">
     <h2>Nhập mật khẩu</h2>
     <input type="password" id="pw" autocomplete="current-password" placeholder="Mật khẩu của app">
@@ -398,6 +448,34 @@
     <div id="status"></div>
     <div id="sub"></div>
     <div id="meter" class="hidden"><i></i></div>
+  </div>
+
+  <div id="vocabView">
+    <div id="vHome" class="vhome">
+      <img class="vmascot" src="m3d/books.png" alt="">
+      <h2 style="margin:0">Thẻ từ vựng</h2>
+      <div class="tip">Học từ như thẻ ghi nhớ: lật thẻ, nghe phát âm, tự chấm. Từ quên sẽ quay lại sớm, từ đã nhớ giãn ngày ôn dần.</div>
+      <div class="vstats" id="vStats"></div>
+      <button id="vStart" class="bigbtn" disabled>Đang tải…</button>
+      <div class="vrow"><label for="newPerDay">Từ mới mỗi ngày</label>
+        <select id="newPerDay"><option>5</option><option selected>10</option><option>15</option><option>20</option><option>30</option></select></div>
+      <div id="vMsg" class="alert" style="margin-top:10px"></div>
+    </div>
+    <div id="vStudy" class="hidden">
+      <div class="vbarwrap"><div class="vbar"><i id="vBar"></i></div><div class="vcount" id="vCount"></div></div>
+      <div id="vCard" class="fcard"></div>
+      <div id="vAct" class="vact"></div>
+      <div class="vtools">
+        <button id="vQuit" class="ghost" type="button">Dừng, lưu lại</button>
+        <button id="vAuto" class="ghost" type="button">🔊 Tự đọc: bật</button>
+      </div>
+    </div>
+    <div id="vDone" class="vhome hidden">
+      <img class="vmascot" src="m3d/sparkles.png" alt="">
+      <h2 id="vDoneTitle" style="margin:0">Xong buổi ôn!</h2>
+      <p id="vDoneText"></p>
+      <button id="vBack" class="bigbtn" type="button">Về trang thẻ từ</button>
+    </div>
   </div>
 
   <div class="card hidden" id="summaryCard">
@@ -1093,6 +1171,7 @@
     fillSubModes();
     renderRecent(b.recent);
     if (!b.hasKey) el.bootMsg.textContent = 'Máy chủ chưa có GEMINI_API_KEY trong Script Properties.';
+    try { if (LS.getItem('tab') === 'vocab') setTab('vocab'); } catch (e) {}
     setIdleButton();
   }).catch(function (e) {
     booting = false;
@@ -1769,6 +1848,265 @@
     el.summaryCard.classList.remove('hidden');
     el.summaryCard.scrollIntoView({ behavior: 'smooth' });
   }
+
+  // ------------------------------------------------------------ thẻ từ vựng (song song với luyện nói)
+
+  function setTab(t) {
+    if (S && t !== 'speak') return;
+    document.body.classList.toggle('tab-vocab', t === 'vocab');
+    Array.prototype.forEach.call(document.querySelectorAll('#tabs button'), function (b) {
+      b.classList.toggle('on', b.dataset.tab === t);
+      b.setAttribute('aria-selected', b.dataset.tab === t ? 'true' : 'false');
+    });
+    try { LS.setItem('tab', t); } catch (e) {}
+    if (t === 'vocab' && !V.active) loadCards();
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('#tabs button'), function (b) {
+    b.addEventListener('click', function () { setTab(b.dataset.tab); });
+  });
+
+  // Phát âm bằng giọng tiếng Trung có sẵn của máy (miễn phí, không tốn hạn mức Gemini).
+  var zhVoice = null;
+  function pickVoice() {
+    try {
+      var vs = window.speechSynthesis ? speechSynthesis.getVoices() : [];
+      zhVoice = vs.filter(function (v) { return /^zh[-_]CN/i.test(v.lang); })[0] || vs.filter(function (v) { return /^zh/i.test(v.lang); })[0] || null;
+    } catch (e) {}
+  }
+  if (window.speechSynthesis) { pickVoice(); speechSynthesis.onvoiceschanged = pickVoice; }
+  function say(text, slow) {
+    if (!window.speechSynthesis || !text) return;
+    try {
+      speechSynthesis.cancel();
+      var u = new SpeechSynthesisUtterance(text);
+      u.lang = 'zh-CN';
+      if (zhVoice) u.voice = zhVoice;
+      u.rate = slow ? 0.6 : 0.85;
+      speechSynthesis.speak(u);
+    } catch (e) {}
+  }
+  function sayBtn(text, small) {
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'say' + (small ? ' sm' : '');
+    b.textContent = '🔊';
+    b.setAttribute('aria-label', 'Nghe phát âm');
+    var slow = false;
+    b.addEventListener('click', function (ev) { ev.stopPropagation(); say(text, slow); slow = !slow; });
+    return b;
+  }
+
+  var V = { active: false, queue: [], done: 0, total: 0, pending: [], card: null, back: false, data: null, auto: true };
+  try { V.auto = LS.getItem('autoSay') !== '0'; } catch (e) {}
+  try { var npd = LS.getItem('newPerDay'); if (npd) $('newPerDay').value = npd; } catch (e) {}
+  $('newPerDay').addEventListener('change', function () { try { LS.setItem('newPerDay', this.value); } catch (e) {} loadCards(); });
+  function setAutoLabel() { $('vAuto').textContent = '🔊 Tự đọc: ' + (V.auto ? 'bật' : 'tắt'); }
+  setAutoLabel();
+  $('vAuto').addEventListener('click', function () { V.auto = !V.auto; try { LS.setItem('autoSay', V.auto ? '1' : '0'); } catch (e) {} setAutoLabel(); });
+
+  function loadCards() {
+    if (!boot) return;
+    $('vStart').disabled = true;
+    $('vStart').textContent = 'Đang tải…';
+    $('vMsg').textContent = '';
+    server('getCards', { auth: auth, newLimit: $('newPerDay').value }).then(function (d) {
+      V.data = d;
+      var st = d.stats;
+      var box = $('vStats');
+      box.innerHTML = '';
+      [[d.due.length, 'thẻ đến hạn ôn'], [d.fresh.length, 'từ mới hôm nay'], [st.total, 'từ đã học'], [st.learned, 'từ đã thuộc (≥ 3 tuần)']].forEach(function (x) {
+        var c = document.createElement('div'), b = document.createElement('b'), sp = document.createElement('span');
+        b.textContent = x[0]; sp.textContent = x[1]; c.appendChild(b); c.appendChild(sp); box.appendChild(c);
+      });
+      var n = d.due.length + d.fresh.length;
+      $('vStart').disabled = !n;
+      $('vStart').textContent = n ? 'Bắt đầu học (' + n + ' thẻ)' : 'Hôm nay đã xong 🎉';
+      if (!n) $('vMsg').textContent = st.newToday >= st.newLimit ? 'Đã học đủ ' + st.newLimit + ' từ mới hôm nay. Muốn học thêm thì tăng "Từ mới mỗi ngày".' : '';
+    }).catch(function (e) {
+      $('vStart').disabled = false;
+      $('vStart').textContent = 'Thử lại';
+      $('vMsg').textContent = 'Không tải được thẻ: ' + (e && e.message || e);
+      $('vStart').onclick = loadCards;
+    });
+  }
+
+  function shuffle(a) { for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+
+  $('vStart').addEventListener('click', function () {
+    if (!V.data || this.textContent === 'Thử lại') return;
+    var due = shuffle(V.data.due.map(function (c) { return { c: c, mode: 'quiz' }; }));
+    var fresh = V.data.fresh.map(function (c) { return { c: c, mode: 'intro' }; });
+    // Xen từ mới vào giữa các thẻ ôn: cứ hai thẻ ôn thì một từ mới.
+    var q = [];
+    while (due.length || fresh.length) {
+      if (due.length) q.push(due.shift());
+      if (due.length) q.push(due.shift());
+      if (fresh.length) q.push(fresh.shift());
+    }
+    V.queue = q; V.done = 0; V.total = q.length; V.active = true; V.pending = [];
+    document.body.classList.add('in-cards');
+    $('vHome').classList.add('hidden'); $('vDone').classList.add('hidden'); $('vStudy').classList.remove('hidden');
+    nextCard();
+  });
+
+  function progress() {
+    var total = V.done + V.queue.length;
+    $('vBar').style.width = (total ? Math.round(100 * V.done / total) : 100) + '%';
+    $('vCount').textContent = V.done + '/' + total;
+  }
+
+  function quizKind(c) {
+    var r = Math.random();
+    if (c.reps < 1) return 'read';
+    if (r < 0.5) return 'read';
+    if (r < 0.75 && window.speechSynthesis) return 'listen';
+    return 'recall';
+  }
+
+  function nextCard() {
+    progress();
+    if (!V.queue.length) { finishCards(); return; }
+    var item = V.queue.shift();
+    V.card = item;
+    V.back = item.mode === 'intro';
+    if (item.mode !== 'intro') item.kind = quizKind(item.c);
+    renderCard(true);
+  }
+
+  function addZh(parent, text, cls) { var d = document.createElement('div'); if (cls) d.className = cls; richText(d, text || '', true); parent.appendChild(d); return d; }
+  function addTxt(parent, text, cls, tag) { var d = document.createElement(tag || 'div'); if (cls) d.className = cls; d.textContent = text || ''; parent.appendChild(d); return d; }
+
+  function renderCard(animate) {
+    var item = V.card, c = item.c, box = $('vCard'), act = $('vAct');
+    box.innerHTML = ''; act.innerHTML = '';
+    box.classList.remove('flip'); if (animate || V.back) { void box.offsetWidth; box.classList.add('flip'); }
+    addTxt(box, item.mode === 'intro' ? 'Từ mới' : (item.kind === 'listen' ? 'Nghe' : item.kind === 'recall' ? 'Nhớ lại' : 'Ôn tập'), 'tag');
+    addTxt(box, c.source || '', 'src');
+    if (!V.back) {
+      if (item.kind === 'read') {
+        addTxt(box, 'Từ này nghĩa là gì? Đọc thử thành tiếng.', 'ask');
+        addTxt(box, c.hanzi, 'big');
+        box.appendChild(sayBtn(c.hanzi));
+      } else if (item.kind === 'listen') {
+        addTxt(box, 'Nghe rồi đoán từ và nghĩa.', 'ask');
+        var b = sayBtn(c.hanzi);
+        b.style.width = b.style.height = '84px'; b.style.fontSize = '38px';
+        box.appendChild(b);
+        if (V.auto) setTimeout(function () { say(c.hanzi); }, 250);
+      } else {
+        addTxt(box, 'Nói bằng tiếng Trung:', 'ask');
+        addTxt(box, c.meaning, 'mean');
+        if (c.hanviet) addTxt(box, 'Gợi ý Hán Việt: ' + c.hanviet, 'hv');
+      }
+      var flip = document.createElement('button');
+      flip.type = 'button'; flip.className = 'bigbtn'; flip.textContent = 'Lật thẻ';
+      flip.addEventListener('click', function () { V.back = true; renderCard(true); });
+      act.appendChild(flip);
+      box.onclick = function () { V.back = true; renderCard(true); };
+      return;
+    }
+    box.onclick = null;
+    addZh(box, c.hanzi, 'big');
+    var line = addTxt(box, '', 'hv');
+    line.textContent = (c.pinyin ? c.pinyin : '') + (c.hanviet ? '   ·   Hán Việt: ' + c.hanviet : '');
+    addTxt(box, c.meaning, 'mean');
+    box.appendChild(sayBtn(c.hanzi));
+    if (c.example) {
+      var ex = addZh(box, c.example, 'ex');
+      ex.appendChild(sayBtn(c.example, true));
+      if (c.example_vi) addTxt(ex, c.example_vi, 'vi', 'span');
+    }
+    if (V.auto && item.kind !== 'listen') setTimeout(function () { say(c.hanzi); }, 200);
+    if (item.mode === 'intro') {
+      var ok = document.createElement('button');
+      ok.type = 'button'; ok.className = 'bigbtn'; ok.textContent = 'Đã nhớ mặt chữ, tiếp →';
+      ok.addEventListener('click', function () {
+        // Từ mới: xem xong thì vài thẻ sau sẽ hỏi lại để kiểm tra.
+        V.queue.splice(Math.min(3, V.queue.length), 0, { c: c, mode: 'quiz', fromNew: true });
+        nextCard();
+      });
+      act.appendChild(ok);
+      return;
+    }
+    var g = document.createElement('div');
+    g.className = 'grades';
+    [['Quên', 0], ['Khó', 1], ['Nhớ', 2], ['Dễ', 3]].forEach(function (x) {
+      var b = document.createElement('button');
+      b.type = 'button'; b.className = 'g' + x[1];
+      b.appendChild(document.createTextNode(x[0]));
+      var sm = document.createElement('small'); sm.textContent = ivLabel(schedule(c, x[1], true)); b.appendChild(sm);
+      b.addEventListener('click', function () { grade(x[1]); });
+      g.appendChild(b);
+    });
+    act.appendChild(g);
+  }
+
+  // Lịch ôn kiểu Anki rút gọn. Trả về bản sao đã tính (preview) hoặc sửa thẳng thẻ.
+  var DAY = 86400000;
+  function schedule(c0, gr, preview) {
+    var c = preview ? JSON.parse(JSON.stringify(c0)) : c0, now = Date.now();
+    c.ease = c.ease || 2.5; c.reps = c.reps || 0; c.interval = c.interval || 0; c.lapses = c.lapses || 0;
+    if (gr === 0) {
+      if (c.reps > 0) c.lapses++;
+      c.reps = 0; c.interval = 0; c.ease = Math.max(1.3, c.ease - 0.2); c.due = now + 60000; c.again = 60000;
+    } else if (gr === 1) {
+      c.ease = Math.max(1.3, c.ease - 0.15);
+      if (c.reps === 0) { c.interval = 0; c.due = now + 5 * 60000; c.again = 5 * 60000; }
+      else { c.interval = Math.max(1, Math.round(c.interval * 1.2)); c.reps++; c.due = now + c.interval * DAY - 4 * 3600000; c.again = 0; }
+    } else {
+      if (gr === 3) c.ease = c.ease + 0.15;
+      if (c.reps === 0) c.interval = gr === 3 ? 4 : 1;
+      else if (c.reps === 1) c.interval = gr === 3 ? 6 : 3;
+      else c.interval = Math.max(c.interval + 1, Math.round(c.interval * c.ease * (gr === 3 ? 1.3 : 1)));
+      c.reps++; c.due = now + c.interval * DAY - 4 * 3600000; c.again = 0;
+    }
+    return c;
+  }
+  function ivLabel(c) {
+    if (c.again) return c.again < 3600000 ? Math.round(c.again / 60000) + ' phút' : '';
+    if (c.interval < 30) return c.interval + ' ngày';
+    if (c.interval < 365) return Math.round(c.interval / 30) + ' tháng';
+    return Math.round(c.interval / 365) + ' năm';
+  }
+
+  function grade(gr) {
+    var item = V.card, c = item.c;
+    schedule(c, gr);
+    V.pending = V.pending.filter(function (x) { return x.hanzi !== c.hanzi; });
+    V.pending.push({ hanzi: c.hanzi, pinyin: c.pinyin, hanviet: c.hanviet, meaning: c.meaning, example: c.example, example_vi: c.example_vi,
+      source: c.source, due: c.due, interval: c.interval, ease: c.ease, reps: c.reps, lapses: c.lapses });
+    if (c.again) V.queue.splice(Math.min(gr === 0 ? 3 : 6, V.queue.length), 0, { c: c, mode: 'quiz' });
+    else V.done++;
+    if (V.pending.length >= 5) flushReviews();
+    nextCard();
+  }
+
+  function flushReviews() {
+    if (!V.pending.length) return Promise.resolve();
+    var batch = V.pending; V.pending = [];
+    return server('saveReviews', { auth: auth, reviews: batch }).catch(function (e) {
+      V.pending = batch.concat(V.pending); // lỗi mạng: giữ lại, lần sau gửi tiếp
+      $('vMsg').textContent = 'Chưa lưu được kết quả (' + (e && e.message || e) + '); app sẽ thử lại.';
+    });
+  }
+  document.addEventListener('visibilitychange', function () { if (document.hidden) flushReviews(); });
+
+  function finishCards() {
+    V.active = false;
+    document.body.classList.remove('in-cards');
+    try { speechSynthesis.cancel(); } catch (e) {}
+    $('vStudy').classList.add('hidden');
+    $('vDone').classList.remove('hidden');
+    $('vDoneTitle').textContent = V.queue.length ? 'Đã dừng' : 'Xong buổi ôn! 🎉';
+    $('vDoneText').textContent = 'Đã chấm ' + V.done + ' thẻ. Đang lưu kết quả…';
+    flushReviews().then(function () {
+      $('vDoneText').textContent = 'Đã chấm ' + V.done + ' thẻ và lưu kết quả. Từ quên sẽ quay lại sớm; từ nhớ sẽ được hẹn ôn sau vài ngày.';
+    });
+  }
+  $('vQuit').addEventListener('click', function () { V.queue = V.queue.length ? [V.card].concat(V.queue) : []; finishCards(); });
+  $('vBack').addEventListener('click', function () {
+    $('vDone').classList.add('hidden'); $('vHome').classList.remove('hidden'); loadCards();
+  });
 
   el.mainBtn.addEventListener('click', function () {
     if (S) { end(); return; }
