@@ -359,6 +359,24 @@
   .grades button small { display: block; font-size: 11.5px; font-weight: 500; opacity: .9; margin-top: 3px; }
   .g0 { background: #c62828; } .g1 { background: #ef6c00; } .g2 { background: #2e7d32; } .g3 { background: #1565c0; }
   .vtools { display: flex; justify-content: space-between; margin-top: 12px; }
+  /* Chuyển ngôn ngữ học */
+  .tlang { display: flex; gap: 6px; margin: 0 0 8px; }
+  .tlang button { flex: 1; padding: 10px 6px; font: 700 15px/1.2 inherit; border-radius: 14px; border: 2px solid var(--line); background: var(--card); color: var(--ink); cursor: pointer; }
+  .tlang button.on { border-color: var(--brand); color: var(--brand); background: var(--user); }
+  .wrap.locked .tlang, body.in-session .tlang, body.in-cards .tlang { display: none; }
+  .lookbar { display: flex; gap: 8px; margin: 2px 0 6px; }
+  .lookbar input { flex: 1; }
+  .lookres { margin: 4px 0 12px; }
+  .lookres .litem { padding: 10px 6px; border: 1px solid var(--line); border-radius: 14px; margin: 8px 0; background: var(--card); }
+  .lookres .lh { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .lookres .lh b { font-size: 24px; }
+  .lookres .lh .py { color: var(--brand); }
+  .lookres .lm { font-weight: 600; margin-top: 4px; }
+  .lookres .ln { font-size: 13.5px; color: var(--muted); margin-top: 2px; }
+  .lookres .lx { margin-top: 6px; font-size: 15px; line-height: 2; }
+  .lookres .lx .vi { display: block; font-size: 13.5px; color: var(--muted); line-height: 1.4; }
+  .lookres .add { margin-left: auto; width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--brand); background: transparent; color: var(--brand); font-size: 22px; cursor: pointer; }
+  .lookres .add.in { border-color: var(--ok); color: var(--ok); font-size: 16px; }
   /* Kho từ HSK */
   .tabs.sub { margin: 0 0 12px; }
   .tabs.sub button { font-size: 14px; padding: 8px 6px; }
@@ -442,6 +460,10 @@
     </div>
   </div>
 
+  <div class="tlang" id="tlang">
+    <button type="button" data-t="zh">🇨🇳 Tiếng Trung</button>
+    <button type="button" data-t="en">🇬🇧 Tiếng Anh</button>
+  </div>
   <div class="tabs" id="tabs" role="tablist">
     <button type="button" data-tab="speak" class="on" role="tab">🗣️ Luyện nói</button>
     <button type="button" data-tab="vocab" role="tab">🃏 Thẻ từ vựng</button>
@@ -477,18 +499,23 @@
   <div id="vocabView">
     <div class="tabs sub" id="vTabs">
       <button type="button" data-v="cards" class="on">🃏 Ôn thẻ</button>
-      <button type="button" data-v="bank">📚 Kho từ HSK</button>
+      <button type="button" data-v="bank">📚 Kho từ, tra từ</button>
     </div>
     <div id="vBank" class="hidden">
+      <div class="lookbar">
+        <input type="text" id="lookQ" placeholder="Tra từ tiếng Việt, ví dụ: cường độ chịu nén" autocomplete="off" enterkeyhint="search">
+        <button id="lookBtn" class="ghost" type="button">🔎 Tra</button>
+      </div>
+      <div id="lookRes" class="lookres"></div>
       <div class="lvls" id="bankLvls"></div>
       <div class="bankbar">
-        <input type="text" id="bankQ" placeholder="Tìm: 你好, nihao, xin chào…" autocomplete="off">
+        <input type="text" id="bankQ" placeholder="Lọc trong kho…" autocomplete="off">
         <select id="bankF"><option value="all">Tất cả</option><option value="new">Chưa học</option><option value="in">Đã có trong thẻ</option></select>
       </div>
       <div class="banknote" id="bankNote"></div>
       <div id="bankList"></div>
       <div style="text-align:center;margin:12px 0"><button id="bankMore" class="ghost hidden" type="button">Xem thêm</button></div>
-      <div class="tip">Danh sách từ HSK 1–6 (bản 2.0, 4.991 từ): complete-hsk-vocabulary, giấy phép MIT. Nghĩa tiếng Việt và âm Hán Việt do Gemini dịch dần theo trang bạn xem, lưu lại để lần sau mở ngay.</div>
+      <div class="tip" id="bankSrc"></div>
     </div>
     <div id="vHome" class="vhome">
       <img class="vmascot" src="m3d/books.png" alt="">
@@ -605,7 +632,6 @@
         <label for="langSel">Ngôn ngữ giảng</label>
         <select id="langSel">
           <option value="vi_much" selected>Giảng tiếng Việt, luyện tiếng Trung</option>
-          <option value="vi_en">Giảng tiếng Việt, kèm thuật ngữ tiếng Anh</option>
           <option value="vi_some">Chủ yếu tiếng Trung, giải thích tiếng Việt khi khó</option>
           <option value="zh">Toàn tiếng Trung</option>
         </select>
@@ -640,8 +666,8 @@
 
       <section id="ccSec">
         <h3>Phụ đề</h3>
-        <label class="check"><input type="checkbox" id="pinyinChk" checked> Hiện pinyin trên chữ Hán</label>
-        <label class="check"><input type="checkbox" id="transChk" checked> Dịch nghĩa câu có tiếng Trung sang tiếng Việt</label>
+        <label class="check" id="pinyinRow"><input type="checkbox" id="pinyinChk" checked> Hiện pinyin trên chữ Hán</label>
+        <label class="check"><input type="checkbox" id="transChk" checked> <span id="transLbl">Dịch nghĩa câu có tiếng Trung sang tiếng Việt</span></label>
         <div class="tip">Phụ đề hiện trọn lượt nói gần nhất; vuốt trong ô phụ đề để xem phần trên. Nghĩa tiếng Việt hiện ngay sau khi câu nói xong. Toàn bộ hội thoại ở mục Hội thoại.</div>
       </section>
 
@@ -688,10 +714,15 @@
 
   // Cùng tên miền phucnguyenyhn.github.io với app tiếng Anh: dùng ngăn nhớ riêng (tiền tố "zh:")
   // để hai app không ghi đè mã đăng nhập và lựa chọn của nhau.
+  // Hai ngôn ngữ học (tiếng Trung / tiếng Anh): các lựa chọn học tập lưu riêng cho từng ngôn ngữ.
+  var TARGET = 'zh';
+  try { TARGET = localStorage.getItem('zh:target') === 'en' ? 'en' : 'zh'; } catch (e) {}
+  var PER_TARGET = ['mode', 'lesson', 'lang', 'level', 'newSource', 'newPerDay', 'vtab', 'bankvi', 'tab'];
+  function kk(k) { return 'zh:' + (PER_TARGET.indexOf(k) >= 0 || k.indexOf('sub:') === 0 ? TARGET + ':' : '') + k; }
   var LS = {
-    getItem: function (k) { return localStorage.getItem('zh:' + k); },
-    setItem: function (k, v) { localStorage.setItem('zh:' + k, v); },
-    removeItem: function (k) { localStorage.removeItem('zh:' + k); }
+    getItem: function (k) { return localStorage.getItem(kk(k)); },
+    setItem: function (k, v) { localStorage.setItem(kk(k), v); },
+    removeItem: function (k) { localStorage.removeItem(kk(k)); }
   };
 
   // Máy chủ Apps Script (giữ API key, mật khẩu và Google Sheet). Trang này chỉ là giao diện.
@@ -816,7 +847,7 @@
   }
   function applyName() {
     teacherName = getName(mascotSel.value);
-    document.querySelector('h1').textContent = 'Học tiếng Trung với ' + teacherName;
+    document.querySelector('h1').textContent = 'Học tiếng ' + (TARGET === 'en' ? 'Anh' : 'Trung') + ' với ' + teacherName;
     var hidden = el.log.classList.contains('hide-ai');
     $('hideBtn').textContent = (hidden ? 'Hiện chữ của ' : 'Ẩn chữ của ') + teacherName;
   }
@@ -904,7 +935,7 @@
     return fetch(API_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({ fn: fn, arg: arg }),
+      body: JSON.stringify({ fn: fn, arg: arg, target: TARGET }),
       redirect: 'follow'
     }).then(function (r) {
       if (!r.ok) throw new Error('Máy chủ trả lỗi HTTP ' + r.status);
@@ -1177,7 +1208,7 @@
   var booting = false;
   function loadBoot() {
   booting = true;
-  server('getBootstrap', auth).then(function (b) {
+  server('getBootstrap', { auth: auth }).then(function (b) {
     booting = false;
     el.bootMsg.textContent = '';
     if (b.locked) { forgetAuth(); showLock(''); return; }
@@ -1196,6 +1227,14 @@
     voiceSel.onchange = function () { try { LS.setItem('voice', voiceSel.value); } catch (e) {} };
     speedSel.onchange = function () { try { LS.setItem('speed', speedSel.value); } catch (e) {} };
     // Các ô chọn đơn giản: nhớ lựa chọn trên từng thiết bị.
+    [['levelSel', b.levels, b.defaultLevel], ['langSel', b.langs, 'vi_much']].forEach(function (x) {
+      var sel = $(x[0]);
+      if (!x[1]) return;
+      sel.innerHTML = '';
+      x[1].forEach(function (o) { sel.add(new Option(o.label, o.id)); });
+      sel.value = x[2];
+    });
+    applyTargetUi();
     ['langSel:lang', 'personaSel:persona', 'correctSel:correct', 'levelSel:level'].forEach(function (pair) {
       var p = pair.split(':'), sel = $(p[0]), key = p[1];
       try {
@@ -1213,7 +1252,7 @@
     fillSubModes();
     renderRecent(b.recent);
     if (!b.hasKey) el.bootMsg.textContent = 'Máy chủ chưa có GEMINI_API_KEY trong Script Properties.';
-    try { if (LS.getItem('tab') === 'vocab') setTab('vocab'); } catch (e) {}
+    try { setTab(LS.getItem('tab') === 'vocab' ? 'vocab' : 'speak'); } catch (e) {}
     setIdleButton();
   }).catch(function (e) {
     booting = false;
@@ -1357,8 +1396,15 @@
 
   // Chữ Hán: thêm pinyin phía trên từng chữ (pinyin-pro, đoán âm theo cả cụm nên đọc đúng chữ đa âm).
   var HAN = /[\u3400-\u9fff\uf900-\ufaff]+/g;
-  function hasHan(t) { return /[\u3400-\u9fff\uf900-\ufaff]/.test(t || ''); }
-  function pinyinOn() { return $('pinyinChk').checked; }
+  function hasHan(t) { return /[㐀-鿿豈-刺]/.test(t || ''); }
+  // Lượt nói có phần tiếng Trung / tiếng Anh cần dịch (tiếng Việt không dấu không tính là tiếng Anh).
+  function hasTarget(t) {
+    if (TARGET === 'zh') return hasHan(t);
+    var words = String(t || '').split(/[^A-Za-zÀ-ỹ']+/).filter(function (w) { return w; });
+    var en = words.filter(function (w) { return /^[A-Za-z']+$/.test(w) && w.length > 1; });
+    return en.length >= 2 && en.length >= words.length * 0.35;
+  }
+  function pinyinOn() { return TARGET === 'zh' && $('pinyinChk').checked; }
   function richText(parent, text, force) {
     var py = (force || pinyinOn()) && window.pinyinPro && typeof window.pinyinPro.pinyin === 'function';
     if (!py || !hasHan(text)) { parent.appendChild(document.createTextNode(text)); return; }
@@ -1396,7 +1442,7 @@
   }
   // Nghĩa tiếng Việt: xin khi một lượt nói có tiếng Trung vừa xong.
   function translateItem(item) {
-    if (item.trAsked || !$('transChk').checked || !hasHan(item.text)) return;
+    if (item.trAsked || !$('transChk').checked || !hasTarget(item.text)) return;
     item.trAsked = true;
     server('translate', { auth: auth, text: item.text }).then(function (tr) {
       item.tr = String(tr || '').trim();
@@ -1639,7 +1685,7 @@
     var tokenOld = Date.now() - S.tokenAt > (S.tokenMinutes - 2) * 60000;
     var needToken = tokenOld || S.retries > 1 || !S.handle;
     var wait = new Promise(function (r) { setTimeout(r, S.retries > 1 ? 1200 * S.retries : 100); });
-    var p = needToken ? wait.then(function () { return server('renewToken', auth); }).then(function (t) {
+    var p = needToken ? wait.then(function () { return server('renewToken', { auth: auth }); }).then(function (t) {
       S.token = t.token; S.tokenAt = Date.now(); S.tokenMinutes = t.tokenMinutes;
     }) : wait;
     p.then(function () { if (S && !S.ending) connect(); }).catch(function (e) {
@@ -1686,6 +1732,7 @@
     sendText('Please say your last sentences again, more slowly and clearly, then continue.');
   });
   $('sylBtn').addEventListener('click', function () {
+    if (TARGET === 'en') { sendText('Please say your last English sentence again very slowly, word by word, telling me in Vietnamese which syllables are stressed and which final sounds I must pronounce, then have me repeat it.'); return; }
     sendText('Please say your last Chinese sentence again very slowly, syllable by syllable, telling me in Vietnamese the pinyin and the tone of each syllable, then have me repeat it.');
   });
   $('transBtn').addEventListener('click', function () {
@@ -1834,7 +1881,7 @@
     server('finishSession', payload).then(function (res) {
       renderSummary(res);
       setStatus(res.saved ? 'Đã lưu buổi học' : 'Chưa lưu được buổi học', res.saved ? 'listen' : 'bad', '');
-      return server('getBootstrap', auth).then(function (b) {
+      return server('getBootstrap', { auth: auth }).then(function (b) {
         if (b.locked) return;
         renderRecent(b.recent); renderStats(b.stats);
         boot.curriculum = b.curriculum; boot.current = b.current;
@@ -1916,7 +1963,8 @@
   function pickVoice() {
     try {
       var vs = window.speechSynthesis ? speechSynthesis.getVoices() : [];
-      zhVoice = vs.filter(function (v) { return /^zh[-_]CN/i.test(v.lang); })[0] || vs.filter(function (v) { return /^zh/i.test(v.lang); })[0] || null;
+      var want = TARGET === 'en' ? /^en[-_](US|GB)/i : /^zh[-_]CN/i, base = TARGET === 'en' ? /^en/i : /^zh/i;
+      zhVoice = vs.filter(function (v) { return want.test(v.lang); })[0] || vs.filter(function (v) { return base.test(v.lang); })[0] || null;
     } catch (e) {}
   }
   if (window.speechSynthesis) { pickVoice(); speechSynthesis.onvoiceschanged = pickVoice; }
@@ -1925,7 +1973,7 @@
     try {
       speechSynthesis.cancel();
       var u = new SpeechSynthesisUtterance(text);
-      u.lang = 'zh-CN';
+      u.lang = TARGET === 'en' ? 'en-US' : 'zh-CN';
       if (zhVoice) u.voice = zhVoice;
       u.rate = slow ? 0.6 : 0.85;
       speechSynthesis.speak(u);
@@ -2071,7 +2119,7 @@
     var line = addTxt(box, '', 'hv');
     line.textContent = (c.pinyin ? c.pinyin : '') + (c.hanviet ? '   ·   Hán Việt: ' + c.hanviet : '');
     addTxt(box, c.meaning, 'mean');
-    if (c.en && c.en !== c.meaning) addTxt(box, c.en, 'hv');
+
     box.appendChild(sayBtn(c.hanzi));
     if (c.example) {
       var ex = addZh(box, c.example, 'ex');
@@ -2167,12 +2215,22 @@
   }
   // ---- kho từ HSK 1–6
   var BANK = {}, BANKVI = {}, B = { level: 'hsk1', shown: 40 };
-  try { BANKVI = JSON.parse(LS.getItem('bankvi') || '{}') || {}; } catch (e) { BANKVI = {}; }
-  var BANK_COUNT = { hsk1: 150, hsk2: 147, hsk3: 298, hsk4: 598, hsk5: 1298, hsk6: 2500 };
+  var BANKS = {
+    zh: { count: { hsk1: 150, hsk2: 147, hsk3: 298, hsk4: 598, hsk5: 1298, hsk6: 2500 }, dir: 'hsk/',
+      label: function (lv) { return lv.toUpperCase().replace('HSK', 'HSK '); },
+      src: 'Danh sách từ HSK 1–6 (bản 2.0, 4.991 từ): complete-hsk-vocabulary, giấy phép MIT. Nghĩa tiếng Việt và âm Hán Việt do Gemini dịch dần theo trang bạn xem, lưu lại để lần sau mở ngay.' },
+    en: { count: { en1: 500, en2: 500, en3: 1000, en4: 854 }, dir: 'en/',
+      label: function (lv) { return { en1: 'Thông dụng 1', en2: 'Thông dụng 2', en3: 'Mở rộng 3', en4: 'Mở rộng 4' }[lv]; },
+      src: '2.854 từ tiếng Anh thông dụng nhất (New General Service List 1.2, Browne, Culligan & Phillips; giấy phép CC BY-SA 4.0), xếp theo độ phổ biến. Nghĩa tiếng Việt và phiên âm IPA do Gemini dịch dần theo trang bạn xem.' }
+  };
+  function BK() { return BANKS[TARGET]; }
+  var BANK_COUNT = BK().count;
+  function loadBankVi() { try { BANKVI = JSON.parse(LS.getItem('bankvi') || '{}') || {}; } catch (e) { BANKVI = {}; } }
+  loadBankVi();
   function loadBank(lv) {
     if (BANK[lv]) return Promise.resolve(BANK[lv]);
-    return fetch('hsk/' + lv + '.json').then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
-      .then(function (d) { BANK[lv] = d; return d; });
+    return fetch(BK().dir + lv + '.json').then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+      .then(function (d) { d = d.map(function (w) { return typeof w === 'string' ? [w, '', ''] : w; }); BANK[lv] = d; return d; });
   }
   function saveBankVi() { try { LS.setItem('bankvi', JSON.stringify(BANKVI)); } catch (e) {} }
   // Lấy nghĩa tiếng Việt cho các từ chưa có (máy chủ dịch, mỗi lần tối đa 60 từ).
@@ -2192,8 +2250,9 @@
   }
   function bankCard(w, lv) {
     var v = BANKVI[w[0]] || {};
-    return { id: w[0], hanzi: w[0], pinyin: w[1], hanviet: v.hv || '', meaning: v.vi || w[2], en: w[2], example: '', example_vi: '',
-      source: 'Kho ' + lv.toUpperCase().replace('HSK', 'HSK '), interval: 0, ease: 2.5, reps: 0, lapses: 0, due: 0, isNew: true };
+    var en = TARGET === 'en';
+    return { id: w[0], hanzi: w[0], pinyin: en ? (v.hv || '') : w[1], hanviet: en ? '' : (v.hv || ''), meaning: v.vi || (en ? '' : w[2]), example: '', example_vi: '',
+      source: 'Kho ' + BK().label(lv), interval: 0, ease: 2.5, reps: 0, lapses: 0, due: 0, isNew: true };
   }
   function fold(t) { return String(t || '').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'd').toLowerCase().replace(/\s+/g, ''); }
 
@@ -2209,17 +2268,20 @@
   Array.prototype.forEach.call(document.querySelectorAll('#vTabs button'), function (b) {
     b.addEventListener('click', function () { setVTab(b.dataset.v); });
   });
-  (function buildLvls() {
+  function buildLvls() {
     var box = $('bankLvls');
+    box.innerHTML = '';
     Object.keys(BANK_COUNT).forEach(function (lv) {
       var b = document.createElement('button');
       b.type = 'button'; b.dataset.lv = lv;
-      b.appendChild(document.createTextNode(lv.toUpperCase().replace('HSK', 'HSK ')));
+      b.appendChild(document.createTextNode(BK().label(lv)));
       var sm = document.createElement('small'); sm.textContent = BANK_COUNT[lv]; b.appendChild(sm);
       b.addEventListener('click', function () { openBank(lv); });
       box.appendChild(b);
     });
-  })();
+    $('bankSrc').textContent = BK().src;
+  }
+  buildLvls();
   function openBank(lv) {
     B.level = lv; B.shown = 40; B.open = null;
     Array.prototype.forEach.call(document.querySelectorAll('#bankLvls button'), function (b) { b.classList.toggle('on', b.dataset.lv === lv); });
@@ -2253,7 +2315,7 @@
   function renderBank() {
     var all = bankFiltered(), page = all.slice(0, B.shown), box = $('bankList'), known = V.known || {};
     var inDeck = (BANK[B.level] || []).filter(function (w) { return known[w[0]]; }).length;
-    $('bankNote').textContent = B.level.toUpperCase().replace('HSK', 'HSK ') + ': ' + (BANK[B.level] || []).length + ' từ, ' + inDeck +
+    $('bankNote').textContent = BK().label(B.level) + ': ' + (BANK[B.level] || []).length + ' từ, ' + inDeck +
       ' từ đã có trong thẻ. Xếp theo độ phổ biến. ' + (all.length !== (BANK[B.level] || []).length ? 'Đang lọc: ' + all.length + ' từ.' : '');
     box.innerHTML = '';
     page.forEach(function (w) { box.appendChild(bankRow(w)); });
@@ -2277,8 +2339,8 @@
     var b = document.createElement('b'); b.textContent = w[0]; h.appendChild(b);
     var py = document.createElement('span'); py.textContent = w[1]; h.appendChild(py);
     var m = document.createElement('div'); m.className = 'bm';
-    if (v) { m.appendChild(document.createTextNode(v.vi)); if (v.hv) { var hv = document.createElement('span'); hv.className = 'hv'; hv.textContent = 'Hán Việt: ' + v.hv; m.appendChild(hv); } }
-    else { var wt = document.createElement('span'); wt.className = 'wait'; wt.textContent = w[2] + ' (đang dịch…)'; m.appendChild(wt); }
+    if (v) { m.appendChild(document.createTextNode(v.vi)); if (v.hv) { var hv = document.createElement('span'); hv.className = 'hv'; hv.textContent = (TARGET === 'en' ? 'Phát âm: ' : 'Hán Việt: ') + v.hv; m.appendChild(hv); } }
+    else { var wt = document.createElement('span'); wt.className = 'wait'; wt.textContent = 'đang dịch…'; m.appendChild(wt); }
     var add = document.createElement('button');
     add.type = 'button'; add.className = 'add' + (known ? ' in' : '');
     add.textContent = known ? '✓' : '＋';
@@ -2300,13 +2362,96 @@
       if (open) { row.removeChild(open); return; }
       var d = document.createElement('div'); d.className = 'bdetail';
       d.appendChild(sayBtn(w[0]));
-      d.appendChild(document.createTextNode('Tiếng Anh: ' + w[2]));
       row.appendChild(d);
       say(w[0]);
     });
     row.appendChild(wrap);
     return row;
   }
+  // ---- tra từ tiếng Việt → tiếng Trung / tiếng Anh (Gemini, lưu lại để lần sau trả ngay)
+  function doLookup() {
+    var q = $('lookQ').value.trim();
+    var box = $('lookRes');
+    if (!q) { box.innerHTML = ''; return; }
+    box.innerHTML = '';
+    var w = document.createElement('div'); w.className = 'empty'; w.textContent = 'Đang tra “' + q + '”…'; box.appendChild(w);
+    server('lookup', { auth: auth, q: q }).then(function (r) {
+      box.innerHTML = '';
+      if (!r.results || !r.results.length) { w.textContent = 'Không tìm được từ phù hợp.'; box.appendChild(w); return; }
+      r.results.forEach(function (c) { box.appendChild(lookItem(c)); });
+    }).catch(function (e) { w.className = 'alert'; w.textContent = 'Không tra được: ' + (e && e.message || e); });
+  }
+  function lookItem(c) {
+    var d = document.createElement('div'); d.className = 'litem';
+    var h = document.createElement('div'); h.className = 'lh';
+    var b = document.createElement('b'); richText(b, c.hanzi, true); h.appendChild(b);
+    var py = document.createElement('span'); py.className = 'py'; py.textContent = c.pinyin + (c.hanviet ? '  ·  Hán Việt: ' + c.hanviet : ''); h.appendChild(py);
+    h.appendChild(sayBtn(c.hanzi, true));
+    var known = V.known && V.known[c.hanzi];
+    var add = document.createElement('button'); add.type = 'button'; add.className = 'add' + (known ? ' in' : ''); add.textContent = known ? '✓' : '＋';
+    add.title = known ? 'Đã có trong thẻ học' : 'Thêm vào thẻ học';
+    add.addEventListener('click', function () {
+      if (V.known && V.known[c.hanzi]) return;
+      add.disabled = true;
+      var card = { hanzi: c.hanzi, pinyin: c.pinyin, hanviet: c.hanviet, meaning: c.meaning, example: c.example, example_vi: c.example_vi,
+        source: 'Tra từ', due: Date.now(), interval: 0, ease: 2.5, reps: 0, lapses: 0 };
+      server('saveReviews', { auth: auth, reviews: [card] }).then(function () {
+        V.known = V.known || {}; V.known[c.hanzi] = true; add.className = 'add in'; add.textContent = '✓';
+      }).catch(function (e) { add.disabled = false; alert('Không thêm được: ' + (e && e.message || e)); });
+    });
+    h.appendChild(add);
+    d.appendChild(h);
+    var m = document.createElement('div'); m.className = 'lm'; m.textContent = c.meaning; d.appendChild(m);
+    if (c.note) { var n = document.createElement('div'); n.className = 'ln'; n.textContent = c.note; d.appendChild(n); }
+    if (c.example) {
+      var x = document.createElement('div'); x.className = 'lx'; richText(x, c.example, true); x.appendChild(sayBtn(c.example, true));
+      if (c.example_vi) { var xv = document.createElement('span'); xv.className = 'vi'; xv.textContent = c.example_vi; x.appendChild(xv); }
+      d.appendChild(x);
+    }
+    return d;
+  }
+  $('lookBtn').addEventListener('click', doLookup);
+  $('lookQ').addEventListener('keydown', function (ev) { if (ev.key === 'Enter') { ev.preventDefault(); doLookup(); } });
+
+  // ---- chuyển ngôn ngữ học: mỗi ngôn ngữ có chế độ, chương trình, thẻ, kho từ và tiến độ riêng
+  function applyTargetUi() {
+    var en = TARGET === 'en';
+    Array.prototype.forEach.call(document.querySelectorAll('#tlang button'), function (b) { b.classList.toggle('on', b.dataset.t === TARGET); });
+    document.title = 'Luyện nói tiếng ' + (en ? 'Anh' : 'Trung');
+    $('pinyinRow').classList.toggle('hidden', en);
+    $('transLbl').textContent = 'Dịch nghĩa câu có tiếng ' + (en ? 'Anh' : 'Trung') + ' sang tiếng Việt';
+    $('sylBtn').textContent = en ? 'Đọc chậm từng từ + trọng âm' : 'Đọc từng âm tiết + thanh điệu';
+    el.topic.placeholder = en ? 'Ví dụ: mô tả thí nghiệm nén mẫu, giới thiệu đề tài…' : 'Ví dụ: đếm số 1–10, hỏi giá, 抗压强度…';
+    $('lookQ').placeholder = 'Tra từ tiếng Việt sang tiếng ' + (en ? 'Anh' : 'Trung') + ', ví dụ: cường độ chịu nén';
+    $('bankQ').placeholder = en ? 'Lọc trong kho: material, vật liệu…' : 'Lọc trong kho: 你好, nihao, xin chào…';
+    var ns = $('newSource'), keep = LS.getItem('newSource');
+    ns.innerHTML = '';
+    ns.add(new Option('Bài học (' + (en ? 'chương trình A2 → C1' : '116 bài') + ')', 'lesson'));
+    Object.keys(BANK_COUNT).forEach(function (lv) { ns.add(new Option('Kho ' + BK().label(lv), lv)); });
+    ns.value = keep && ns.querySelector('option[value="' + keep + '"]') ? keep : 'lesson';
+    applyName();
+  }
+  function setTarget(t) {
+    if (S || V.active || t === TARGET) return;
+    TARGET = t;
+    try { localStorage.setItem('zh:target', t); } catch (e) {}
+    BANK = {}; BANK_COUNT = BK().count; B.level = Object.keys(BANK_COUNT)[0]; loadBankVi();
+    lessonCache = {}; lessonLoading = {}; V.known = null; V.data = null;
+    $('lookRes').innerHTML = ''; $('lookQ').value = ''; $('bankQ').value = '';
+    $('bankList').innerHTML = ''; $('bankNote').textContent = '';
+    el.summaryCard.classList.add('hidden');
+    pickVoice();
+    buildLvls();
+    applyTargetUi();
+    boot = null;
+    el.mainBtn.disabled = true; el.mainBtn.textContent = 'Đang tải…';
+    loadBoot();
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('#tlang button'), function (b) {
+    b.addEventListener('click', function () { setTarget(b.dataset.t); });
+  });
+  applyTargetUi();
+
   var bankTimer = null;
   $('bankQ').addEventListener('input', function () { clearTimeout(bankTimer); bankTimer = setTimeout(function () { B.shown = 40; renderBank(); }, 200); });
   $('bankF').addEventListener('change', function () { B.shown = 40; renderBank(); });
