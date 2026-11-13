@@ -516,6 +516,14 @@
 (function () {
   'use strict';
 
+  // Cùng tên miền phucnguyenyhn.github.io với app tiếng Anh: dùng ngăn nhớ riêng (tiền tố "zh:")
+  // để hai app không ghi đè mã đăng nhập và lựa chọn của nhau.
+  var LS = {
+    getItem: function (k) { return localStorage.getItem('zh:' + k); },
+    setItem: function (k, v) { localStorage.setItem('zh:' + k, v); },
+    removeItem: function (k) { localStorage.removeItem('zh:' + k); }
+  };
+
   // Máy chủ Apps Script (giữ API key, mật khẩu và Google Sheet). Trang này chỉ là giao diện.
   var API_URL = 'https://script.google.com/macros/s/AKfycbw05pdToJVPsm9I4OJtvcPNOFwPhsVvDXAb9Na9Ad46F1P70AAHBXHH2HMzCyRi5RmXVw/exec';
 
@@ -595,8 +603,8 @@
 
   // Mỗi nhân vật có tên riêng (sửa được) và có thể thay bằng ảnh riêng; cả hai lưu trên thiết bị này.
   var configName = 'Mei'; // TEACHER_NAME trong sheet Config, dùng khi không chọn nhân vật
-  function store(k, v) { try { if (v) localStorage.setItem(k, v); else localStorage.removeItem(k); return true; } catch (e) { return false; } }
-  function load(k) { try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } }
+  function store(k, v) { try { if (v) LS.setItem(k, v); else LS.removeItem(k); return true; } catch (e) { return false; } }
+  function load(k) { try { return LS.getItem(k) || ''; } catch (e) { return ''; } }
   function getName(kind) { return load('name:' + kind) || DEFAULT_NAMES[kind] || configName; }
 
   // Ảnh có sẵn trong app cho một số nhân vật; ảnh người học tự chọn trên máy được ưu tiên hơn.
@@ -697,13 +705,13 @@
   }
 
   try {
-    var savedM = localStorage.getItem('mascot');
+    var savedM = LS.getItem('mascot');
     if (savedM && mascotSel.querySelector('option[value="' + savedM + '"]')) mascotSel.value = savedM;
   } catch (e) {}
   renderMascot();
   mascotSel.addEventListener('change', function () {
     renderMascot();
-    try { localStorage.setItem('mascot', mascotSel.value); } catch (e) {}
+    try { LS.setItem('mascot', mascotSel.value); } catch (e) {}
   });
   $('nameInput').addEventListener('input', function () {
     var v = this.value.replace(/[<>]/g, '').trim().slice(0, 30);
@@ -765,7 +773,7 @@
     el.subMode.innerHTML = '';
     (m ? m.subs : []).forEach(function (s) { el.subMode.add(new Option(s.label, s.id)); });
     try {
-      var savedSub = localStorage.getItem('sub:' + el.mode.value);
+      var savedSub = LS.getItem('sub:' + el.mode.value);
       if (savedSub && el.subMode.querySelector('option[value="' + savedSub + '"]')) el.subMode.value = savedSub;
     } catch (e) {}
     updatePill();
@@ -799,7 +807,7 @@
 
   // ---- mật khẩu: trình duyệt chỉ giữ mã đăng nhập do server cấp, không giữ mật khẩu
   var auth = '';
-  try { auth = localStorage.getItem('auth') || ''; } catch (e) {}
+  try { auth = LS.getItem('auth') || ''; } catch (e) {}
   var wrap = document.querySelector('.wrap');
 
   function showLock(msg) {
@@ -816,7 +824,7 @@
   function isAuthError(e) { return /AUTH/.test(String(e && e.message || e)); }
   function forgetAuth() {
     auth = '';
-    try { localStorage.removeItem('auth'); } catch (e) {}
+    try { LS.removeItem('auth'); } catch (e) {}
   }
   function submitPassword() {
     var pw = $('pw').value;
@@ -826,7 +834,7 @@
     server('login', pw).then(function (r) {
       if (!r.ok) { showLock(r.error || 'Sai mật khẩu.'); return; }
       auth = r.token || '';
-      try { localStorage.setItem('auth', auth); } catch (e) {}
+      try { LS.setItem('auth', auth); } catch (e) {}
       $('pwMsg').textContent = '';
       loadBoot();
     }).catch(function (e) { showLock('Lỗi: ' + (e && e.message || e)); });
@@ -845,27 +853,27 @@
     (b.voices || []).forEach(function (v) { voiceSel.add(new Option(v.label, v.id)); });
     if (b.defaultVoice) voiceSel.value = b.defaultVoice;
     try {
-      var sv = localStorage.getItem('voice'), sp = localStorage.getItem('speed');
+      var sv = LS.getItem('voice'), sp = LS.getItem('speed');
       if (sv && (b.voices || []).some(function (v) { return v.id === sv; })) voiceSel.value = sv;
       if (sp === 'slow' || sp === 'normal' || sp === 'fast') speedSel.value = sp;
     } catch (e) {}
-    voiceSel.onchange = function () { try { localStorage.setItem('voice', voiceSel.value); } catch (e) {} };
-    speedSel.onchange = function () { try { localStorage.setItem('speed', speedSel.value); } catch (e) {} };
+    voiceSel.onchange = function () { try { LS.setItem('voice', voiceSel.value); } catch (e) {} };
+    speedSel.onchange = function () { try { LS.setItem('speed', speedSel.value); } catch (e) {} };
     // Các ô chọn đơn giản: nhớ lựa chọn trên từng thiết bị.
     ['langSel:lang', 'personaSel:persona', 'correctSel:correct', 'levelSel:level'].forEach(function (pair) {
       var p = pair.split(':'), sel = $(p[0]), key = p[1];
       try {
-        var sv0 = localStorage.getItem(key);
+        var sv0 = LS.getItem(key);
         if (sv0 && sel.querySelector('option[value="' + sv0 + '"]')) sel.value = sv0;
       } catch (e) {}
-      sel.onchange = function () { try { localStorage.setItem(key, sel.value); } catch (e) {} };
+      sel.onchange = function () { try { LS.setItem(key, sel.value); } catch (e) {} };
     });
     showPosition(b.position);
     renderStats(b.stats);
     if (b.teacherName) configName = b.teacherName;
     renderMascot();
     b.modes.forEach(function (m) { el.mode.add(new Option(m.label, m.id)); });
-    try { var saved = localStorage.getItem('mode'); if (saved && modeById(saved)) el.mode.value = saved; } catch (e) {}
+    try { var saved = LS.getItem('mode'); if (saved && modeById(saved)) el.mode.value = saved; } catch (e) {}
     fillSubModes();
     renderRecent(b.recent);
     if (!b.hasKey) el.bootMsg.textContent = 'Máy chủ chưa có GEMINI_API_KEY trong Script Properties.';
@@ -879,11 +887,11 @@
 
   el.mode.addEventListener('change', function () {
     fillSubModes();
-    try { localStorage.setItem('mode', el.mode.value); } catch (e) {}
+    try { LS.setItem('mode', el.mode.value); } catch (e) {}
   });
   el.subMode.addEventListener('change', function () {
     updatePill();
-    try { localStorage.setItem('sub:' + el.mode.value, el.subMode.value); } catch (e) {}
+    try { LS.setItem('sub:' + el.mode.value, el.subMode.value); } catch (e) {}
   });
 
   // ---- bảng cài đặt
