@@ -798,6 +798,7 @@
   }
   // Chạm vào nhân vật: nhảy nảy lên một cái.
   mascot.addEventListener('click', function () {
+    if (S) nudgeReply(false);
     var m = mascot.querySelector('.m3d');
     if (!m) return;
     m.classList.remove('poke'); void m.offsetWidth; m.classList.add('poke');
@@ -1546,6 +1547,7 @@
     S.micLevel = S.muted ? 0 : Math.min(1, rms * 6);
 
     if (S.muted || !S.ready || !S.ws || S.ws.readyState !== 1) return;
+    if (S.holdMicUntil && Date.now() < S.holdMicUntil) return;
     var bytes = new Uint8Array(f32.length * 2);
     var view = new DataView(bytes.buffer);
     for (var j = 0; j < f32.length; j++) {
@@ -1647,8 +1649,9 @@
     var sc = msg.serverContent;
     if (!sc) return;
     if (sc.interrupted) { stopPlayback(); closeBubbles('ai'); refreshStatus(); }
-    if (sc.inputTranscription && sc.inputTranscription.text) appendText('user', sc.inputTranscription.text);
-    if (sc.outputTranscription && sc.outputTranscription.text) appendText('ai', sc.outputTranscription.text);
+    if (sc.inputTranscription && sc.inputTranscription.text) { appendText('user', sc.inputTranscription.text); S.lastUserAt = Date.now(); }
+    if (sc.outputTranscription && sc.outputTranscription.text) { appendText('ai', sc.outputTranscription.text); S.lastAiAt = Date.now(); }
+    if (sc.modelTurn) S.lastAiAt = Date.now();
     if (sc.modelTurn && sc.modelTurn.parts) {
       sc.modelTurn.parts.forEach(function (p) {
         if (p.inlineData && p.inlineData.data && /^audio\//.test(p.inlineData.mimeType || 'audio/pcm')) playChunk(p.inlineData.data);
@@ -1696,8 +1699,26 @@
 
   // ------------------------------------------------------------ trạng thái
 
+  // Gemini tự đoán lúc người học nói xong. Nhà ồn thì nó có thể chờ mãi: báo "hết lượt" để giáo viên trả lời.
+  function nudgeReply(auto) {
+    if (!S || !S.ready || !S.ws || S.ws.readyState !== 1 || S.muted || S.playing.size) return false;
+    S.ws.send(JSON.stringify({ realtimeInput: { audioStreamEnd: true } }));
+    S.holdMicUntil = Date.now() + 1500;
+    S.nudgedAt = Date.now();
+    setStatus(auto ? 'Mời ' + teacherName + ' trả lời…' : 'Đã mời ' + teacherName + ' trả lời…', 'warn');
+    return true;
+  }
+  function autoNudge() {
+    if (!S || !S.ready || S.playing.size || S.muted || !S.lastUserAt) return;
+    var now = Date.now();
+    if (S.lastUserAt <= (S.lastAiAt || 0) || now - S.lastUserAt < 4000) return; // giáo viên đã trả lời, hoặc vừa mới nói xong
+    if (S.nudgedAt && S.nudgedAt >= S.lastUserAt) return; // đã mời cho câu này rồi
+    nudgeReply(true);
+  }
+
   function refreshStatus() {
     if (!S || S.ending) return;
+    autoNudge();
     var t = Math.floor((Date.now() - S.startedAt) / 1000);
     var clock = Math.floor(t / 60) + ':' + ('0' + (t % 60)).slice(-2);
     var sub = S.modeLabel + ' · ' + clock;
@@ -1705,7 +1726,8 @@
     if (S.prepLeft > 0) { setStatus('Chuẩn bị: còn ' + S.prepLeft + ' giây', 'warn', sub); setMascot('think'); }
     else if (S.playing.size) { setStatus(teacherName + ' đang nói — có thể ngắt lời', 'speak', sub); setMascot('speak'); }
     else if (S.muted) { setStatus('Micro đang tắt', 'warn', sub); setMascot('idle'); }
-    else { setStatus('Đang nghe…', 'listen', sub); setMascot('listen'); }
+    else if (S.nudgedAt && Date.now() - S.nudgedAt < 2500) { setMascot('think'); }
+    else { setStatus('Đang nghe… (chạm nhân vật nếu chưa thấy trả lời)', 'listen', sub); setMascot('listen'); }
   }
 
   function setMuted(m) {
