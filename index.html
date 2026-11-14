@@ -12,6 +12,10 @@
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-180-zh2.png">
 <link rel="icon" type="image/png" href="icon-192-zh2.png">
+<script>try { var _r = document.documentElement; _r.dataset.theme = localStorage.getItem('zh:theme') || 'light'; _r.dataset.target = localStorage.getItem('zh:target') === 'en' ? 'en' : 'zh'; } catch (e) {}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap">
 <!-- Pinyin cho phụ đề: pinyin-pro (MIT). Không tải được thì phụ đề vẫn hiện chữ Hán. -->
 <script src="https://cdn.jsdelivr.net/npm/pinyin-pro@3.26.0/dist/index.js" defer></script>
 <style>
@@ -22,23 +26,37 @@
   #cc.py .t { line-height: 2.15; }
   .msg .t { line-height: 1.9; }
   #cc .tr, .msg .tr { display: block; margin-top: 6px; padding-top: 6px; border-top: 1px dashed var(--line); font-size: .86em; color: var(--muted); }
+  /* Giao diện học từ app ôn IELTS: sáng, gọn, viền mảnh, nhãn nhỏ viết hoa; màu nhấn đỏ (tiếng Trung) / chàm (tiếng Anh). */
   :root {
-    --bg: #f4f6f8; --card: #ffffff; --ink: #1c2530; --muted: #66727f; --line: #dde3ea;
-    --brand: #c62828; --brand-ink: #ffffff; --user: #fdecea; --ai: #ffffff;
-    --warn: #b4530a; --bad: #b3261e; --ok: #1f7a3d;
+    --bg: #f6f7fb; --card: #ffffff; --card-2: #f8f8fd; --ink: #111827; --ink-2: #374151; --muted: #6b7280; --line: #e6e8f0;
+    --brand: #dc2626; --brand-ink: #ffffff; --brand-soft: #fdeeee; --user: #fdeeee; --ai: #ffffff;
+    --warn: #b45309; --bad: #e11d48; --ok: #16a34a; --ok-soft: #e9f8ee; --cta: #f97316;
+    --shadow: 0 1px 2px rgb(16 24 40 / 0.04); --shadow-lg: 0 8px 28px rgb(16 24 40 / 0.10);
+    color-scheme: light;
   }
+  :root[data-target="en"] { --brand: #4f46e5; --brand-soft: #eef0ff; --user: #eef0ff; }
+  :root[data-theme="dark"] {
+    --bg: #0f1117; --card: #171a23; --card-2: #1c2030; --ink: #eef0f6; --ink-2: #c9cdd9; --muted: #9aa1b2; --line: #272b38;
+    --brand: #f87171; --brand-ink: #0f1117; --brand-soft: #3a1d22; --user: #3a1d22; --ai: #1c2030;
+    --warn: #fbbf24; --bad: #fb7185; --ok: #4ade80; --ok-soft: #13291c;
+    --shadow: 0 1px 2px rgb(0 0 0 / 0.4); --shadow-lg: 0 10px 30px rgb(0 0 0 / 0.5); color-scheme: dark;
+  }
+  :root[data-theme="dark"][data-target="en"] { --brand: #8b83ff; --brand-soft: #23234a; --user: #23234a; }
   @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #12171c; --card: #1b2229; --ink: #e8edf2; --muted: #96a3b0; --line: #2c3742;
-      --brand: #ff8a80; --brand-ink: #2b0606; --user: #3a2224; --ai: #222b33;
-      --warn: #f0a55a; --bad: #f2867f; --ok: #6fcf8f;
+    :root[data-theme="auto"] {
+      --bg: #0f1117; --card: #171a23; --card-2: #1c2030; --ink: #eef0f6; --ink-2: #c9cdd9; --muted: #9aa1b2; --line: #272b38;
+      --brand: #f87171; --brand-ink: #0f1117; --brand-soft: #3a1d22; --user: #3a1d22; --ai: #1c2030;
+      --warn: #fbbf24; --bad: #fb7185; --ok: #4ade80; --ok-soft: #13291c;
+      --shadow: 0 1px 2px rgb(0 0 0 / 0.4); --shadow-lg: 0 10px 30px rgb(0 0 0 / 0.5); color-scheme: dark;
     }
+    :root[data-theme="auto"][data-target="en"] { --brand: #8b83ff; --brand-soft: #23234a; --user: #23234a; }
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; height: 100%; }
   body {
     background: var(--bg); color: var(--ink);
-    font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    font: 15.5px/1.55 "Be Vietnam Pro", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    padding-bottom: calc(84px + env(safe-area-inset-bottom));
   }
   .wrap { max-width: 760px; margin: 0 auto; padding: 16px; display: flex; flex-direction: column; min-height: 100%; }
   h1 { font-size: 20px; margin: 4px 0 12px; }
@@ -228,8 +246,8 @@
   .orb {
     --glow: 0; position: relative; width: 210px; height: 210px; margin: 6px auto 4px; border-radius: 50%;
     display: grid; place-items: center;
-    background: radial-gradient(circle at 50% 45%, rgba(198, 40, 40, .2), rgba(198, 40, 40, .04) 68%, transparent 71%);
-    box-shadow: 0 0 calc(8px + var(--glow) * 46px) calc(var(--glow) * 10px) rgba(229, 115, 115, calc(.18 + var(--glow) * .5));
+    background: radial-gradient(circle at 50% 45%, color-mix(in srgb, var(--brand) 20%, transparent), color-mix(in srgb, var(--brand) 4%, transparent) 68%, transparent 71%);
+    box-shadow: 0 0 calc(8px + var(--glow) * 46px) calc(var(--glow) * 10px) color-mix(in srgb, var(--brand) calc(18% + var(--glow) * 50%), transparent);
     transition: box-shadow .08s linear;
   }
   .orb[data-who="listen"] {
@@ -448,21 +466,109 @@
   .guide-card .k { display: inline-block; padding: 1px 8px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); font-weight: 600; }
   .guide-arrow { position: absolute; bottom: -54px; right: 34px; font-size: 40px; color: #fff; animation: nudge 1s ease-in-out infinite; }
   @keyframes nudge { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(8px); } }
+  /* ===== Học từ app ôn IELTS: thanh trên, tab nổi dưới, màn Hôm nay ===== */
+  .card { border-radius: 16px; box-shadow: var(--shadow); padding: 16px; }
+  .topbar { position: sticky; top: 0; z-index: 6; margin: -16px -16px 12px; padding: calc(10px + env(safe-area-inset-top)) 16px 10px;
+    background: color-mix(in srgb, var(--card) 88%, transparent); backdrop-filter: saturate(1.4) blur(14px); -webkit-backdrop-filter: saturate(1.4) blur(14px);
+    border-bottom: 1px solid var(--line); }
+  .topbar .brand { display: flex; align-items: center; gap: 8px; min-width: 0; }
+  .topbar .brand img { width: 30px; height: 30px; border-radius: 9px; flex: none; }
+  .topbar h1 { font-size: 16px; font-weight: 800; letter-spacing: -0.01em; }
+  #gearBtn { display: none; }
+  .iconbtn { font-weight: 700; border-radius: 12px; }
+  .tlang { display: inline-flex; gap: 0; margin: 0; padding: 0; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: var(--card-2); flex: none; }
+  .tlang button { flex: none; padding: 7px 10px; font: 700 13px/1.2 inherit; border: 0; border-radius: 0; background: transparent; color: var(--muted); }
+  .tlang button.on { background: var(--brand); color: var(--brand-ink); border: 0; }
+  #tabs, #vTabs { display: none !important; }
+  .eyebrow { font-size: 0.68rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--brand); margin: 0 0 2px; }
+  .badge { display: inline-block; font-size: 0.72rem; padding: 3px 10px; border-radius: 999px; background: var(--brand-soft); color: var(--brand); font-weight: 700; }
+  /* Tab nổi dưới */
+  .bnav { position: fixed; left: 10px; right: 10px; bottom: calc(10px + env(safe-area-inset-bottom)); z-index: 15; max-width: 560px; margin: 0 auto;
+    display: grid; grid-template-columns: repeat(5, 1fr); padding: 4px; border: 1px solid var(--line); border-radius: 20px;
+    background: color-mix(in srgb, var(--card) 94%, transparent); backdrop-filter: saturate(1.4) blur(16px); -webkit-backdrop-filter: saturate(1.4) blur(16px);
+    box-shadow: 0 6px 24px rgb(16 24 40 / 0.10); }
+  .bnav button { display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 7px 2px 6px; border: 0; background: transparent;
+    color: var(--muted); font: 600 11.5px/1.2 inherit; border-radius: 16px; cursor: pointer; }
+  .bnav button svg { width: 22px; height: 22px; transition: transform .2s; }
+  .bnav button.on { color: var(--brand); background: var(--brand-soft); }
+  .bnav button.on svg { transform: translateY(-1px) scale(1.08); }
+  .wrap.locked ~ .bnav, body.in-session .bnav, body.in-cards .bnav, body.sheet-open .bnav { display: none; }
+  body.in-session, body.in-cards { padding-bottom: 16px; }
+  /* Màn đang xem */
+  #homeView { display: none; }
+  body.view-home #homeView { display: block; animation: rise .28s ease-out; }
+  body.view-home .stage, body.view-home #summaryCard, body.view-home #vocabView { display: none !important; }
+  @keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  .wrap.locked #homeView { display: none !important; }
+  /* Màn Hôm nay */
+  .greet { display: flex; align-items: center; gap: 12px; margin: 2px 0 14px; }
+  .greet .gm { width: 56px; height: 56px; flex: none; }
+  .greet .gm img { width: 100%; height: 100%; }
+  .greet h2 { margin: 0; font-size: 1.3rem; font-weight: 800; letter-spacing: -0.02em; }
+  .greet .meta { color: var(--muted); font-size: 0.85rem; }
+  .kpis { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+  .kpi { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px 10px 12px; text-align: center; box-shadow: var(--shadow); }
+  .kpi b { display: block; font-size: 1.6rem; font-weight: 800; letter-spacing: -0.02em; line-height: 1.1; color: var(--ink); }
+  .kpi b.hot { color: var(--cta); }
+  .kpi span { display: block; margin-top: 3px; font-size: 0.66rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+  .hsec { background: color-mix(in srgb, var(--brand) 5%, var(--card)); border: 1px solid color-mix(in srgb, var(--brand) 14%, var(--line)); border-radius: 20px; padding: 16px; margin: 0 0 14px; }
+  .plan-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+  .plan-head h3 { margin: 0; font-size: 1.15rem; font-weight: 800; }
+  .week { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-top: 10px; }
+  .week .d { text-align: center; font-size: 0.7rem; font-weight: 700; color: var(--muted); }
+  .week .d i { display: grid; place-items: center; margin: 4px auto 0; width: 32px; height: 32px; border-radius: 50%; border: 1.5px dashed var(--line); font-style: normal; font-size: 0.85rem; color: var(--muted); background: var(--card); }
+  .week .d.on i { border: 0; background: var(--brand); color: var(--brand-ink); }
+  .week .d.now i { border: 2px solid var(--brand); color: var(--brand); }
+  .week .d.now.on i { color: var(--brand-ink); }
+  .quote { font-size: 0.86rem; color: var(--ink-2); border-left: 3px solid var(--brand); padding: 2px 0 2px 10px; margin: 10px 0 0; }
+  .task { display: flex; gap: 12px; align-items: center; width: 100%; text-align: left; padding: 12px; margin: 0 0 8px; font: inherit; color: var(--ink);
+    background: var(--card); border: 1px solid var(--line); border-radius: 14px; cursor: pointer; }
+  .task:last-child { margin-bottom: 0; }
+  .task:active { transform: scale(.99); }
+  .task .chip { flex: none; width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; font-weight: 800; font-size: 0.95rem;
+    color: var(--c, var(--brand)); background: color-mix(in srgb, var(--c, var(--brand)) 14%, var(--card)); }
+  .task .body { flex: 1; min-width: 0; }
+  .task h4 { margin: 0; font-size: 0.98rem; font-weight: 700; }
+  .task .meta { color: var(--muted); font-size: 0.84rem; }
+  .task .go { color: var(--muted); opacity: .6; flex: none; }
+  .task.done { opacity: .62; }
+  .task.done .chip { background: var(--ok-soft); color: var(--ok); }
+  .task.focus { border-color: color-mix(in srgb, var(--brand) 55%, var(--line)); background: color-mix(in srgb, var(--brand) 4%, var(--card)); }
+  .task[data-k="lesson"] { --c: #2563eb; } .task[data-k="new"] { --c: #7c3aed; } .task[data-k="due"] { --c: #db2777; } .task[data-k="talk"] { --c: #d97706; }
+  .task[data-k="look"] { --c: #0d9488; } .task[data-k="read"] { --c: #16a34a; }
+  .ring-bg { stroke: color-mix(in srgb, var(--brand) 15%, transparent); }
+  .ring-fg { stroke: var(--brand); transition: stroke-dashoffset .6s ease; }
+  .ring-t { font-size: 13px; font-weight: 800; fill: var(--ink); }
+  .road2 { display: flex; align-items: center; gap: 6px; font-size: 0.78rem; font-weight: 700; margin-top: 8px; flex-wrap: wrap; }
+  .road2 .st { padding: 4px 10px; border-radius: 999px; background: var(--card-2); border: 1px solid var(--line); color: var(--muted); }
+  .road2 .st.ok { color: var(--ok); border-color: color-mix(in srgb, var(--ok) 40%, var(--line)); }
+  .road2 .st.now { background: var(--brand); border-color: var(--brand); color: var(--brand-ink); }
+  .road2 .st.goal { border-color: var(--brand); color: var(--brand); }
+  .road2 .ln { flex: 1; min-width: 8px; height: 2px; background: var(--line); }
+  .hfoot { text-align: center; color: var(--muted); font-size: 0.82rem; margin: 14px 0 4px; }
+  /* Lựa chọn giao diện trong Menu */
+  .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: var(--card-2); margin-top: 6px; }
+  .seg button { border: 0; background: transparent; padding: 8px 14px; font: inherit; font-weight: 600; color: var(--muted); cursor: pointer; }
+  .seg button.on { background: var(--brand); color: var(--brand-ink); }
+  /* Nút, ô nhập theo phong cách mới */
+  #mainBtn { box-shadow: 0 8px 22px -6px color-mix(in srgb, var(--brand) 60%, transparent); }
+  select, input[type=text], input[type=password] { border-radius: 12px; background: var(--card); }
+  .ghost { border-radius: 12px; font-weight: 600; }
+  .bigbtn { border-radius: 14px; }
 </style>
 </head>
 <body>
 <div class="wrap">
   <div class="topbar">
-    <h1>Luyện nói tiếng Trung</h1>
+    <div class="brand"><img src="icon-180-zh2.png" alt=""><h1>Luyện nói tiếng Trung</h1></div>
     <div class="right">
-      <button id="installBtn" class="iconbtn hidden" aria-label="Cài app lên màn hình chính">📲 Cài app</button>
+      <button id="installBtn" class="iconbtn hidden" aria-label="Cài app lên màn hình chính">📲</button>
+      <div class="tlang" id="tlang" role="group" aria-label="Ngôn ngữ học">
+        <button type="button" data-t="zh">中文</button>
+        <button type="button" data-t="en">English</button>
+      </div>
       <button id="gearBtn" class="iconbtn" aria-label="Mở menu">☰ Menu</button>
     </div>
-  </div>
-
-  <div class="tlang" id="tlang">
-    <button type="button" data-t="zh">🇨🇳 Tiếng Trung</button>
-    <button type="button" data-t="en">🇬🇧 Tiếng Anh</button>
   </div>
   <div class="tabs" id="tabs" role="tablist">
     <button type="button" data-tab="speak" class="on" role="tab">🗣️ Luyện nói</button>
@@ -475,6 +581,8 @@
     <button id="pwBtn" class="ghost">Mở khóa</button>
     <div id="pwMsg" class="alert"></div>
   </div>
+
+  <div id="homeView"></div>
 
   <div class="card stage">
     <div id="setupCard" class="lessonbar">
@@ -664,6 +772,11 @@
         <div class="tip">Ảnh chỉ lưu trên thiết bị này, không gửi lên mạng. Mỗi điện thoại hoặc máy tính chọn ảnh một lần.</div>
       </section>
 
+      <section class="setup-only">
+        <h3>Giao diện</h3>
+        <div class="seg" id="themeSeg"><button type="button" data-th="light">Sáng</button><button type="button" data-th="dark">Tối</button><button type="button" data-th="auto">Theo máy</button></div>
+      </section>
+
       <section id="ccSec">
         <h3>Phụ đề</h3>
         <label class="check" id="pinyinRow"><input type="checkbox" id="pinyinChk" checked> Hiện pinyin trên chữ Hán</label>
@@ -683,6 +796,14 @@
     </div>
   </div>
 </div>
+
+<nav class="bnav" id="bnav" aria-label="Chuyển màn">
+  <button type="button" data-v="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V20h5v-6h4v6h5V9.5"/></svg><span>Hôm nay</span></button>
+  <button type="button" data-v="speak"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg><span>Luyện nói</span></button>
+  <button type="button" data-v="cards"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="13" height="15" rx="2"/><path d="M8 3h11a2 2 0 0 1 2 2v13"/></svg><span>Thẻ từ</span></button>
+  <button type="button" data-v="bank"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5h7a3 3 0 0 1 3 3v13a2 2 0 0 0-2-2H2Z"/><path d="M22 5h-7a3 3 0 0 0-3 3v13a2 2 0 0 1 2-2h8Z"/></svg><span>Kho từ</span></button>
+  <button type="button" data-v="menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg><span>Menu</span></button>
+</nav>
 
 <div id="lessonSheet" class="sheet hidden" role="dialog" aria-modal="true" aria-labelledby="lsTitle">
   <div class="sheet-body">
@@ -1253,7 +1374,9 @@
     fillSubModes();
     renderRecent(b.recent);
     if (!b.hasKey) el.bootMsg.textContent = 'Máy chủ chưa có GEMINI_API_KEY trong Script Properties.';
-    try { setTab(LS.getItem('tab') === 'vocab' ? 'vocab' : 'speak'); } catch (e) {}
+    var lastView = 'home';
+    try { lastView = localStorage.getItem('zh:view') || 'home'; } catch (e) {}
+    setView(['home', 'speak', 'cards', 'bank'].indexOf(lastView) >= 0 ? lastView : 'home');
     setIdleButton();
   }).catch(function (e) {
     booting = false;
@@ -1906,7 +2029,7 @@
       return server('getBootstrap', { auth: auth }).then(function (b) {
         if (b.locked) return;
         renderRecent(b.recent); renderStats(b.stats);
-        boot.curriculum = b.curriculum; boot.current = b.current;
+        boot.curriculum = b.curriculum; boot.current = b.current; boot.stats = b.stats; boot.cards = b.cards; boot.recent = b.recent;
         if (el.mode.value === 'path') fillLessons(res.lesson && res.lesson.done ? b.current : (res.lesson && res.lesson.id));
       });
     }).catch(function (e) {
@@ -1979,6 +2102,163 @@
   Array.prototype.forEach.call(document.querySelectorAll('#tabs button'), function (b) {
     b.addEventListener('click', function () { setTab(b.dataset.tab); });
   });
+
+  // ---- màn đang xem: Hôm nay · Luyện nói · Thẻ từ · Kho từ (tab nổi dưới, học từ app ôn IELTS)
+  var VIEW = 'home';
+  function setView(v) {
+    if (v === 'menu') { openSettings(); return; }
+    if (S || V.active) v = S ? 'speak' : 'cards';
+    VIEW = v;
+    document.body.classList.toggle('view-home', v === 'home');
+    Array.prototype.forEach.call(document.querySelectorAll('#bnav button'), function (b) { b.classList.toggle('on', b.dataset.v === v); });
+    try { localStorage.setItem('zh:view', v); } catch (e) {}
+    if (v === 'home') { setTab('speak'); renderHome(); refreshHome(); }
+    else if (v === 'speak') setTab('speak');
+    else { setTab('vocab'); setVTab(v === 'bank' ? 'bank' : 'cards'); }
+    window.scrollTo(0, 0);
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('#bnav button'), function (b) {
+    b.addEventListener('click', function () { setView(b.dataset.v); });
+  });
+
+  // Chủ đề Sáng / Tối / Theo máy
+  function setTheme(t) {
+    document.documentElement.dataset.theme = t;
+    try { localStorage.setItem('zh:theme', t); } catch (e) {}
+    Array.prototype.forEach.call(document.querySelectorAll('#themeSeg button'), function (b) { b.classList.toggle('on', b.dataset.th === t); });
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('#themeSeg button'), function (b) {
+    b.addEventListener('click', function () { setTheme(b.dataset.th); });
+  });
+  setTheme(document.documentElement.dataset.theme || 'light');
+
+  var QUOTES = {
+    zh: ['Mỗi ngày một chút, thanh điệu sẽ tự nhiên dần.', 'Không cần hoàn hảo, chỉ cần đều đặn.', 'Hôm nay 15 phút còn hơn mai 2 tiếng.',
+      'Nói sai hôm nay để nói đúng khi gặp đồng nghiệp Trung Quốc.', 'Chữ Hán nào nhớ hôm nay là của mình mãi mãi.',
+      'Hán Việt là lợi thế của người Việt, tận dụng nó.', 'Chậm mà chắc, chuỗi ngày học là vũ khí mạnh nhất.'],
+    en: ['Không cần hoàn hảo, chỉ cần đều đặn.', 'Nói sai mà người ta hiểu vẫn hơn im lặng.', 'Hôm nay 15 phút còn hơn mai 2 tiếng.',
+      'Nghe được một câu hôm nay là nghe được câu đó ở hội thảo.', 'Chuyên môn đã có, tiếng Anh chỉ là cây cầu.',
+      'Đừng nuốt âm cuối, người nghe sẽ hiểu bạn hơn.', 'Chậm mà chắc, chuỗi ngày học là vũ khí mạnh nhất.']
+  };
+  function greetText() {
+    var h = new Date().getHours();
+    return h < 11 ? ['Chào buổi sáng', '☀️'] : h < 14 ? ['Chào buổi trưa', '🌤️'] : h < 18 ? ['Chào buổi chiều', '🌇'] : ['Chào buổi tối', '🌙'];
+  }
+  function ringSvg(v, label) {
+    var size = 58, sw = 6, r = (size - sw) / 2, len = 2 * Math.PI * r; v = Math.max(0, Math.min(1, v));
+    return '<svg width="' + size + '" height="' + size + '" viewBox="0 0 ' + size + ' ' + size + '" aria-hidden="true">' +
+      '<circle cx="29" cy="29" r="' + r + '" fill="none" stroke-width="' + sw + '" class="ring-bg"/>' +
+      '<circle cx="29" cy="29" r="' + r + '" fill="none" stroke-width="' + sw + '" class="ring-fg" stroke-dasharray="' + len + '" stroke-dashoffset="' +
+      (len * (1 - v)) + '" stroke-linecap="round" transform="rotate(-90 29 29)"/>' +
+      '<text x="50%" y="50%" dominant-baseline="central" text-anchor="middle" class="ring-t">' + label + '</text></svg>';
+  }
+  function hEsc(t) { return String(t == null ? '' : t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function localDay(d) { return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); }
+  // Chọn sẵn chế độ / bài rồi chuyển sang màn Luyện nói.
+  function goSpeak(mode, sub, lessonId) {
+    if (!boot || !modeById(mode)) { setView('speak'); return; }
+    el.mode.value = mode;
+    try { LS.setItem('mode', mode); } catch (e) {}
+    if (mode === 'path' && lessonId) { try { LS.setItem('lesson', lessonId); } catch (e) {} }
+    fillSubModes();
+    if (sub && el.subMode.querySelector('option[value="' + sub + '"]')) { el.subMode.value = sub; updatePill(); }
+    setView('speak');
+  }
+
+  function renderHome() {
+    var box = $('homeView');
+    if (!boot) { box.innerHTML = '<p class="empty">Đang tải…</p>'; return; }
+    var en = TARGET === 'en', st = boot.stats || {}, cs = boot.cards || {};
+    var g = greetText();
+    var dateStr = new Date().toLocaleDateString('vi-VN', { weekday: 'long', day: 'numeric', month: 'numeric' });
+    var Q = QUOTES[TARGET], quote = Q[Math.floor(Date.now() / 864e5) % Q.length];
+    var cur = lessonInfo(boot.current);
+    var allL = [], doneL = 0;
+    (boot.curriculum || []).forEach(function (lv) { lv.lessons.forEach(function (l) { if (!lv.optional) allL.push(l); if (!lv.optional && l.status === 'done') doneL++; }); });
+    // Tuần này: Thứ 2 → Chủ nhật
+    var days = {}; (st.days || []).forEach(function (k) { days[k] = true; });
+    var mon = new Date(); mon.setHours(0, 0, 0, 0); mon.setDate(mon.getDate() - ((mon.getDay() + 6) % 7));
+    var tKey = localDay(new Date()), weekN = 0;
+    var week = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'].map(function (lb, k) {
+      var d = new Date(mon); d.setDate(mon.getDate() + k);
+      var key = localDay(d), on = !!days[key]; if (on) weekN++;
+      return '<div class="d' + (on ? ' on' : '') + (key === tKey ? ' now' : '') + '">' + lb + '<i>' + (on ? '✓' : d.getDate()) + '</i></div>';
+    }).join('');
+    // Kế hoạch hôm nay
+    var perDay = parseInt($('newPerDay').value, 10) || 10;
+    var fresh = Math.max(0, perDay - (cs.newToday || 0));
+    var plan = [];
+    if (cur) plan.push({ k: 'lesson', c: 'B', title: 'Bài học: ' + cur.level.label + ' · Bài ' + cur.n, meta: hEsc(cur.lesson.title) + ' · nói với ' + hEsc(teacherName) + ' · 15 phút',
+      done: !!st.todayLesson, go: function () { goSpeak('path', null, boot.current); } });
+    plan.push({ k: 'new', c: 'T', title: 'Học từ mới', meta: fresh ? fresh + ' từ · xem, nghe, tự chấm · 10 phút' : 'Đã học đủ từ mới hôm nay', done: !fresh,
+      go: function () { setView('cards'); } });
+    if (cs.due || cs.reviewedToday) plan.push({ k: 'due', c: 'Ô', title: 'Ôn thẻ đến hạn', meta: cs.due ? cs.due + ' thẻ cần nhớ lại · 5 phút' : 'Không còn thẻ đến hạn',
+      done: !cs.due, go: function () { setView('cards'); } });
+    plan.push(en ? { k: 'talk', c: 'N', title: 'Nói chuyên ngành', meta: 'Vật liệu xây dựng, thí nghiệm, hội thảo · 10 phút', done: !!st.todayOther,
+      go: function () { goSpeak('engineer'); } } :
+      { k: 'talk', c: 'P', title: 'Luyện phát âm, thanh điệu', meta: 'Bốn thanh, cặp thanh, âm khó · 10 phút', done: !!st.todayOther,
+        go: function () { goSpeak('pron'); } });
+    var doneN = plan.filter(function (x) { return x.done; }).length;
+    plan.sort(function (a, b) { return a.done - b.done; });
+    var firstOpen = plan.filter(function (x) { return !x.done; })[0];
+    // Lộ trình
+    var lvls = (boot.curriculum || []).filter(function (lv) { return !lv.optional; });
+    var road = lvls.map(function (lv, i) {
+      var all = lv.lessons.length, d = lv.lessons.filter(function (l) { return l.status === 'done'; }).length;
+      var cls = cur && cur.level.id === lv.id ? 'now' : (d === all ? 'ok' : (i === lvls.length - 1 ? 'goal' : ''));
+      return (i ? '<span class="ln"></span>' : '') + '<span class="st ' + cls + '">' + hEsc(lv.label) + (d === all ? ' ✓' : (i === lvls.length - 1 ? ' 🎯' : '')) + '</span>';
+    }).join('');
+
+    box.innerHTML =
+      '<div class="greet"><span class="gm">' + (mascot.querySelector('img') ? '<img src="' + mascot.querySelector('img').getAttribute('src') + '" alt="">' : '') + '</span>' +
+        '<div><h2>' + g[0] + (boot.learnerName ? ', ' + hEsc(boot.learnerName) : '') + ' ' + g[1] + '</h2><div class="meta">' +
+        dateStr.charAt(0).toUpperCase() + dateStr.slice(1) + ' · học tiếng ' + (en ? 'Anh' : 'Trung') + '</div></div></div>' +
+      '<div class="kpis">' +
+        '<div class="kpi"><b class="' + (st.streak ? 'hot' : '') + '">' + (st.streak || 0) + (st.streak ? ' 🔥' : '') + '</b><span>Chuỗi ngày</span></div>' +
+        '<div class="kpi"><b>' + (cs.learned || 0) + '</b><span>Từ đã thuộc</span></div>' +
+        '<div class="kpi"><b>' + doneL + '/' + allL.length + '</b><span>Bài đã xong</span></div>' +
+        '<div class="kpi"><b>' + (cur ? hEsc(cur.level.label.replace(/ ·.*/, '')) : '—') + '</b><span>Đang học</span></div>' +
+      '</div>' +
+      '<div class="hsec"><div class="plan-head"><div><p class="eyebrow">Tuần này · ' + weekN + '/7 ngày học</p><h3>Điểm danh</h3></div>' +
+        '<span class="badge">' + (st.todayMinutes || 0) + '/30 phút</span></div><div class="week">' + week + '</div><p class="quote">' + quote + '</p></div>' +
+      '<div class="card"><div class="plan-head"><div><p class="eyebrow">Kế hoạch hằng ngày</p><h3>Hôm nay</h3></div>' +
+        '<span>' + ringSvg(plan.length ? doneN / plan.length : 0, doneN + '/' + plan.length) + '</span></div><div id="planList"></div>' +
+        (doneN === plan.length ? '<p class="hfoot" style="color:var(--ok);font-weight:700">Xong hết việc hôm nay 🎉</p>' : '') + '</div>' +
+      '<div class="card"><p class="eyebrow">Lộ trình</p><div class="road2">' + road + '</div>' +
+        (cur ? '<p class="hfoot" style="text-align:left;margin:10px 0 0">Đang học: ' + hEsc(cur.level.label) + ' · Bài ' + cur.n + ': ' + hEsc(cur.lesson.title) + '</p>' : '') + '</div>' +
+      '<p class="eyebrow" style="margin:18px 0 8px">Thêm</p><div id="extraList"></div>' +
+      '<p class="hfoot">Buổi ngắn 10–15 phút: thẻ từ. Buổi dài 30 phút: làm hết kế hoạch hôm nay.</p>';
+
+    function taskBtn(x, focus) {
+      var b = document.createElement('button');
+      b.type = 'button'; b.className = 'task' + (x.done ? ' done' : '') + (focus ? ' focus' : ''); b.dataset.k = x.k;
+      b.innerHTML = '<span class="chip">' + (x.done ? '✓' : x.c) + '</span><span class="body"><h4>' + x.title + '</h4><div class="meta">' + x.meta + '</div></span>' +
+        '<span class="go"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>';
+      b.addEventListener('click', x.go);
+      return b;
+    }
+    plan.forEach(function (x) { $('planList').appendChild(taskBtn(x, x === firstOpen)); });
+    var extra = [
+      { k: 'look', c: '🔎', title: 'Tra từ tiếng Việt', meta: 'Ra từ tiếng ' + (en ? 'Anh' : 'Trung') + ', nghe phát âm, thêm vào thẻ', go: function () { setView('bank'); setTimeout(function () { $('lookQ').focus(); }, 300); } },
+      { k: 'read', c: '📖', title: 'Xem tài liệu bài đang học', meta: 'Từ vựng, ngữ pháp, bài khóa để đọc to', go: function () { openLesson(boot.current); } },
+      { k: 'talk', c: '💬', title: en ? 'Trò chuyện như bạn bè' : 'Giao tiếp hằng ngày', meta: 'Nói thoải mái, giáo viên sửa lỗi nhẹ nhàng',
+        go: function () { goSpeak(en ? 'friend' : 'daily'); } }
+    ];
+    extra.forEach(function (x) { $('extraList').appendChild(taskBtn(x, false)); });
+  }
+  // Lấy số liệu mới (sau buổi học / buổi ôn thẻ) rồi vẽ lại màn Hôm nay.
+  var homeBusy = false;
+  function refreshHome() {
+    if (homeBusy || !boot) return;
+    homeBusy = true;
+    server('getBootstrap', { auth: auth }).then(function (b) {
+      homeBusy = false;
+      if (b.locked || b.target !== TARGET) return;
+      boot.stats = b.stats; boot.cards = b.cards; boot.recent = b.recent; boot.curriculum = b.curriculum; boot.current = b.current;
+      if (VIEW === 'home') renderHome();
+      renderStats(b.stats); renderRecent(b.recent);
+    }).catch(function () { homeBusy = false; });
+  }
 
   // Phát âm bằng giọng tiếng Trung có sẵn của máy (miễn phí, không tốn hạn mức Gemini).
   var zhVoice = null;
@@ -2456,6 +2736,7 @@
   function setTarget(t) {
     if (S || V.active || t === TARGET) return;
     TARGET = t;
+    document.documentElement.dataset.target = t;
     try { localStorage.setItem('zh:target', t); } catch (e) {}
     BANK = {}; BANK_COUNT = BK().count; B.level = Object.keys(BANK_COUNT)[0]; loadBankVi();
     lessonCache = {}; lessonLoading = {}; V.known = null; V.data = null;
